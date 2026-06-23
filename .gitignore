@@ -1,0 +1,20 @@
+# Secrets & environment
+.env
+**/.env
+
+# Dependencies & build output
+**/node_modules/
+**/dist/
+
+# Database
+*.db
+
+# Uploaded avatars (user data — keep folder, ignore contents)
+**/uploads/avatars/*
+!**/uploads/avatars/.gitkeep
+
+# Local-only Claude Code settings
+.claude/settings.local.json
+
+# Sample data with real employee names (do not publish)
+test_files/

@@ -1,0 +1,129 @@
+<script setup lang="ts">
+import { ref, nextTick } from 'vue';
+import { useRouter } from 'vue-router';
+import { useAuthStore } from '../stores/auth.store';
+import api from '../services/api';
+import { EnvelopeIcon, LockClosedIcon } from '@heroicons/vue/24/outline';
+import { useI18n } from '../i18n';
+
+const { t } = useI18n();
+const router = useRouter();
+const auth = useAuthStore();
+const email = ref('');
+const password = ref('');
+const error = ref('');
+const loading = ref(false);
+const phase = ref<'idle' | 'loading' | 'success' | 'leaving'>('idle');
+const shakeError = ref(false);
+
+async function handleLogin() {
+  error.value = '';
+  shakeError.value = false;
+  loading.value = true;
+  phase.value = 'loading';
+
+  try {
+    const { data } = await api.post('/auth/login', { email: email.value, password: password.value });
+    auth.setAuth(data.user, data.token);
+
+    phase.value = 'success';
+    await new Promise(r => setTimeout(r, 600));
+
+    phase.value = 'leaving';
+    await new Promise(r => setTimeout(r, 500));
+
+    router.push('/dashboard');
+  } catch (e: any) {
+    error.value = e.response?.data?.error || t('login_error');
+    loading.value = false;
+    phase.value = 'idle';
+    await nextTick();
+    shakeError.value = true;
+  }
+}
+</script>
+
+<template>
+  <div class="min-h-screen flex items-center justify-center overflow-hidden relative"
+    style="background: linear-gradient(135deg, #0f172a 0%, #1a1a2e 50%, #0f172a 100%); background-size: 200% 200%; animation: gradientShift 8s ease infinite;">
+
+    <div
+      class="w-full max-w-md p-8 bg-dark-800/95 glass rounded-2xl shadow-2xl gradient-border animate-fadeInUp"
+      :class="{
+        'scale-100 opacity-100': phase !== 'leaving',
+        'scale-95 opacity-0': phase === 'leaving',
+      }"
+      style="transition: transform 0.5s ease, opacity 0.5s ease;"
+    >
+      <h1 class="text-3xl font-bold text-center mb-2">
+        <span class="bg-gradient-to-r from-accent to-cyan-400 bg-clip-text text-transparent">Smart Office</span>
+      </h1>
+      <p class="text-center text-slate-400 mb-8">Attendance Management System</p>
+
+      <form @submit.prevent="handleLogin" class="space-y-6">
+        <div>
+          <label class="block text-sm font-medium text-slate-300 mb-2">{{ t('login_email') }}</label>
+          <div class="relative">
+            <EnvelopeIcon class="w-5 h-5 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+            <input
+              v-model="email"
+              type="email"
+              required
+              :disabled="phase !== 'idle'"
+              class="w-full pl-11 pr-4 py-3 bg-dark-900 border border-dark-600 rounded-lg text-slate-100 focus:outline-none focus:border-accent focus:ring-2 focus:ring-accent/30 transition disabled:opacity-60"
+              placeholder="your@email.com"
+            />
+          </div>
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-slate-300 mb-2">{{ t('login_password') }}</label>
+          <div class="relative">
+            <LockClosedIcon class="w-5 h-5 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+            <input
+              v-model="password"
+              type="password"
+              required
+              :disabled="phase !== 'idle'"
+              class="w-full pl-11 pr-4 py-3 bg-dark-900 border border-dark-600 rounded-lg text-slate-100 focus:outline-none focus:border-accent focus:ring-2 focus:ring-accent/30 transition disabled:opacity-60"
+              placeholder="••••••••"
+            />
+          </div>
+        </div>
+
+        <p v-if="error" :class="['text-red-400 text-sm', shakeError ? 'animate-shake' : '']">{{ error }}</p>
+
+        <button
+          type="submit"
+          :disabled="phase !== 'idle'"
+          class="w-full py-3 font-semibold rounded-lg flex items-center justify-center gap-2 overflow-hidden relative"
+          :class="{
+            'bg-gradient-to-r from-accent to-emerald-600 hover:from-accent-light hover:to-emerald-500 text-dark-900 shadow-lg hover:shadow-accent/25 hover:-translate-y-0.5': phase === 'idle',
+            'bg-accent text-dark-900': phase === 'loading',
+            'bg-green-500 text-white shadow-lg shadow-green-500/30': phase === 'success' || phase === 'leaving',
+          }"
+          style="transition: all 0.4s ease;"
+        >
+          <template v-if="phase === 'success' || phase === 'leaving'">
+            <svg class="w-5 h-5 animate-bounceIn" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+            </svg>
+            {{ t('login_success') }}
+          </template>
+          <template v-else-if="phase === 'loading'">
+            <svg class="w-5 h-5 animate-spin" fill="none" viewBox="0 0 24 24">
+              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" />
+              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+            </svg>
+            {{ t('login_loading') }}
+          </template>
+          <template v-else>
+            {{ t('login_button') }}
+          </template>
+        </button>
+      </form>
+    </div>
+
+    <!-- Fade overlay for smooth exit -->
+    <div v-if="phase === 'leaving'" class="fixed inset-0 z-50 bg-dark-900 animate-fadeIn"></div>
+  </div>
+</template>

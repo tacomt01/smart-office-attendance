@@ -1,0 +1,40 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../node_modules/.prisma/client"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+model User {
+  id           String   @id @default(uuid())
+  email        String   @unique
+  passwordHash String   @map("password_hash")
+  role         String   @default("employee")
+  fullName     String?  @map("full_name")
+  avatar       String?
+  createdAt    DateTime @default(now()) @map("created_at")
+
+  @@map("users")
+}
+
+model Employee {
+  fullName       String          @id @map("full_name")
+  department     String?
+  attendanceLogs AttendanceLog[]
+
+  @@map("employees")
+}
+
+model AttendanceLog {
+  id       String   @id @default(uuid())
+  fullName String   @map("full_name")
+  date     DateTime
+  rawValue String   @map("raw_value")
+  status   String
+  employee Employee @relation(fields: [fullName], references: [fullName])
+
+  @@unique([fullName, date])
+  @@map("attendance_logs")
+}
