@@ -1,4 +1,5 @@
 import { prisma } from '../config/database.js';
+import { extractExportFilters, describeFilters, type ExportFilters } from './export.service.js';
 import type { SDKUserMessage } from '@anthropic-ai/claude-agent-sdk';
 
 // ── AI provider config (ทั้งหมดมาจาก .env เพื่อสลับ provider/model ได้โดยไม่ต้องแก้โค้ด) ──
@@ -141,7 +142,7 @@ const EXPORT_KEYWORDS = [
   'download',
 ];
 
-export type ChatResult = { reply: string; action?: { type: 'export' } };
+export type ChatResult = { reply: string; action?: { type: 'export'; filters?: ExportFilters } };
 
 export async function chat(
   userMessage: string,
@@ -155,11 +156,17 @@ export async function chat(
   const lowered = userMessage.toLowerCase();
   const wantsExport = EXPORT_KEYWORDS.some((kw) => lowered.includes(kw.toLowerCase()));
   if (wantsExport && isAdmin === true) {
-    return {
-      reply:
-        'จัดให้แล้วครับ ✅ กดปุ่ม "ดาวน์โหลด Excel" ด้านล่างเพื่อรับไฟล์ข้อมูลการเข้างาน (รูปแบบตารางตามต้นฉบับ) ครับ',
-      action: { type: 'export' },
-    };
+    // ดึง filter จากคำสั่ง (ชื่อพนักงาน / เดือน-ปี / สถานะ) แบบ rule-based
+    const employees = await prisma.employee.findMany({ select: { fullName: true } });
+    const names = employees.map((e) => e.fullName);
+    const filters = extractExportFilters(userMessage, names, new Date().getFullYear());
+
+    const summary = describeFilters(filters);
+    const reply = summary
+      ? `จัดให้แล้วครับ ✅ ส่งออกข้อมูล: ${summary}\nกดปุ่ม "ดาวน์โหลด Excel" ด้านล่างเพื่อรับไฟล์ (รูปแบบตารางตามต้นฉบับ re-upload ได้) ครับ`
+      : 'จัดให้แล้วครับ ✅ กดปุ่ม "ดาวน์โหลด Excel" ด้านล่างเพื่อรับไฟล์ข้อมูลการเข้างานทั้งหมด (รูปแบบตารางตามต้นฉบับ) ครับ';
+
+    return { reply, action: { type: 'export', filters } };
   }
 
   const data = await getAggregatedData(fullName);

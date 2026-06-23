@@ -24,6 +24,7 @@ const auth = useAuthStore();
 
 interface MessageAction {
   type: string;
+  filters?: Record<string, string>;
 }
 
 interface Message {
@@ -243,7 +244,9 @@ async function send() {
   try {
     const { data } = await api.post('/chat', { message: text, provider: provider.value, model: model.value, history });
     const msg: Message = { id: nextId++, role: 'assistant', content: data.reply, time: now() };
-    if (data.action && data.action.type) msg.action = { type: data.action.type };
+    if (data.action && data.action.type) {
+      msg.action = { type: data.action.type, filters: data.action.filters || undefined };
+    }
     messages.value.push(msg);
   } catch (e: any) {
     messages.value.push({ id: nextId++, role: 'assistant', content: '❌ ' + (e.response?.data?.error || 'เกิดข้อผิดพลาด กรุณาลองใหม่'), time: now() });
@@ -258,7 +261,10 @@ async function downloadExport(msg: Message) {
   msg.downloading = true;
   msg.downloadError = false;
   try {
-    const { data } = await api.get('/data/export', { responseType: 'blob' });
+    const { data } = await api.get('/data/export', {
+      params: msg.action?.filters || {},
+      responseType: 'blob',
+    });
     const url = window.URL.createObjectURL(new Blob([data]));
     const a = document.createElement('a');
     a.href = url;

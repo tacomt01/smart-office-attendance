@@ -1,6 +1,7 @@
 import { Router, Request, Response } from 'express';
 import { authenticate, requireRole } from '../middleware/auth.js';
 import { prisma } from '../config/database.js';
+import { buildExportMatrix } from '../services/export.service.js';
 import XLSX from 'xlsx';
 
 const router = Router();
@@ -131,62 +132,31 @@ router.delete('/all', ...adminOnly, async (req: Request, res: Response) => {
 });
 
 // GET /export — ส่งออกเป็นตาราง Matrix แนวนอน (re-uploadable: layout ตรงกับ parser.service.ts)
+// filter สถานะ: เลือก "พนักงาน" ที่มีสถานะนั้น แล้ว export ทั้งแถว (คงรูปแบบ re-uploadable)
 router.get('/export', ...adminOnly, async (req: Request, res: Response) => {
   try {
-    // ดึงทุก record ที่ตรงกับ filter รวม holiday ด้วย (ทุกช่องวันที่ต้องมีค่า)
-    const where = buildWhere(req.query as any);
+    const q = req.query as { fullName?: string; dateFrom?: string; dateTo?: string; status?: string };
+
+    // baseWhere = fullName + ช่วงวันที่ (ไม่รวม status) เพื่อดึงทุก cell ของพนักงานที่เกี่ยว
+    const baseWhere = buildWhere({ fullName: q.fullName, dateFrom: q.dateFrom, dateTo: q.dateTo });
+
+    // ถ้ามี status: หาเซ็ตพนักงานที่มีสถานะนั้น (ภายใต้ filter เดียวกัน) แล้ว export เฉพาะคนเหล่านั้นทั้งแถว
+    let allowedNames: Set<string> | undefined;
+    if (q.status) {
+      const matched = await prisma.attendanceLog.findMany({
+        where: { ...baseWhere, status: q.status },
+        distinct: ['fullName'],
+        select: { fullName: true },
+      });
+      allowedNames = new Set(matched.map((m) => m.fullName));
+    }
+
     const records = await prisma.attendanceLog.findMany({
-      where,
+      where: baseWhere,
       select: { fullName: true, date: true, rawValue: true },
     });
 
-    // ฟอร์แมตวันที่จาก UTC parts เพื่อกัน TZ shifting (สอดคล้องกับวิธีจัดเก็บใน parser)
-    const toISO = (d: Date) => d.toISOString().slice(0, 10); // YYYY-MM-DD
-    const toMMDD = (iso: string) => {
-      const [, mm, dd] = iso.split('-');
-      return `${mm}/${dd}`;
-    };
-
-    // วันที่ที่ไม่ซ้ำ (เรียงจากน้อยไปมาก) และพนักงานที่ไม่ซ้ำ (เรียงตามชื่อ)
-    const dateSet = new Set<string>();
-    const nameSet = new Set<string>();
-    const lookup = new Map<string, string>(); // `${fullName}|${YYYY-MM-DD}` -> rawValue
-    for (const r of records) {
-      const iso = toISO(r.date);
-      dateSet.add(iso);
-      nameSet.add(r.fullName);
-      lookup.set(`${r.fullName}|${iso}`, r.rawValue);
-    }
-    const dates = Array.from(dateSet).sort();
-    const employees = Array.from(nameSet).sort((a, b) => a.localeCompare(b));
-
-    // สร้าง array-of-arrays ตาม layout ของ parser
-    const aoa: any[][] = [];
-    const ensureRow = (idx: number) => {
-      while (aoa.length <= idx) aoa.push([]);
-      return aoa[idx];
-    };
-
-    if (dates.length > 0) {
-      // META_ROW = 1, NAME_COL = 3: ต้องมี YYYY-MM-DD เพื่อให้ parser ดึงปีได้
-      ensureRow(1)[3] = `Date From: ${dates[0]} To: ${dates[dates.length - 1]}`;
-
-      // HEADER_ROW = 2: col 3 = ชื่อ-สกุล, col 4+ = วันที่ในรูปแบบ MM/DD
-      const headerRow = ensureRow(2);
-      headerRow[3] = 'ชื่อ-สกุล';
-      dates.forEach((iso, i) => {
-        headerRow[4 + i] = toMMDD(iso);
-      });
-
-      // DATA_START_ROW = 7: แต่ละพนักงาน 1 แถว
-      employees.forEach((fullName, e) => {
-        const row = ensureRow(7 + e);
-        row[3] = fullName;
-        dates.forEach((iso, i) => {
-          row[4 + i] = lookup.get(`${fullName}|${iso}`) ?? '-';
-        });
-      });
-    }
+    const aoa = buildExportMatrix(records, { allowedNames });
 
     const ws = XLSX.utils.aoa_to_sheet(aoa);
     const wb = XLSX.utils.book_new();

@@ -108,11 +108,12 @@
     * **AI/Model Switching:** มี dropdown 2 ตัว (AI = provider, Model = model ของ provider นั้น) ส่ง provider+model ไปกับทุก request และจำค่าใน `localStorage`
     * **Multi-turn memory:** ส่งประวัติสนทนาล่าสุดไปกับแต่ละ request เพื่อให้ตอบต่อเนื่อง
     * **Chat history (client-side):** เก็บหลาย session ใน `localStorage` — New chat / Search / Clear, เปิดแชทใหม่อัตโนมัติเมื่อกลับเข้ามา, เก็บ 24 ชั่วโมง
-    * **AI-triggered Export:** เมื่อ admin พิมพ์ `export` / `ส่งออก` / `ดาวน์โหลด` จะมีปุ่ม Download ปรากฏในห้องแชท
+    * **AI-triggered Export (กรองได้):** เมื่อ admin พิมพ์ `export` / `ส่งออก` / `ดาวน์โหลด` พร้อมเงื่อนไข ระบบดึง filter จากคำสั่งแบบ rule-based (`extractExportFilters` ใน `export.service.ts`) — รองรับ **พนักงาน / เดือน-ปี (ไทย-อังกฤษ, พ.ศ./ค.ศ.) / สถานะ** แล้วส่ง filter ไปกับปุ่ม Download
     * **Welcome message** เป็นภาษาไทยเสมอ
 
 > 📌 **หมายเหตุระบบ (Phase 5–6):**
 > * **Export = Matrix ที่อัปโหลดซ้ำได้:** ไฟล์ Export Excel เป็น Matrix แนวนอน (พนักงาน = แถว, วันที่ `MM/DD` = คอลัมน์, raw value ในเซลล์) ตรงตามไฟล์ต้นฉบับ จึงนำกลับมาอัปโหลดได้ทันที (round-trip)
+> * **Export filter (Phase 8):** `/api/data/export` รับ `fullName / dateFrom / dateTo / status` — กรณีกรอง `status` จะเลือก **พนักงานที่มีสถานะนั้น** แล้วส่งออก **ทั้งแถว** (ไม่เจาะเฉพาะ cell) เพื่อคงรูปแบบ re-uploadable; logic สร้าง matrix อยู่ใน `export.service.ts` (`buildExportMatrix`)
 > * **Responsive ทุกหน้า:** รองรับ mobile/tablet/desktop — nav มี hamburger, ตารางกว้างเลื่อน/ซ่อนคอลัมน์บนมือถือ, filter bar stack
 
 ## 📁 Documentation Policy

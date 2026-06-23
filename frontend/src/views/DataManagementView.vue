@@ -77,19 +77,26 @@ const dangerDateFrom = ref('');
 const dangerDateTo = ref('');
 const dangerEmployeeId = ref('');
 
+// 7 สถานะปัจจุบัน (ต้องตรงกับค่าใน DB / parser.service.ts)
 const statusOptions = [
   { value: '', label: t('all') },
   { value: 'normal', label: 'normal' },
-  { value: 'late_or_early', label: 'late_or_early' },
-  { value: 'missing_scan', label: 'missing_scan' },
+  { value: 'late', label: 'late' },
+  { value: 'early_leave', label: 'early_leave' },
+  { value: 'missing_check_in', label: 'missing_check_in' },
+  { value: 'missing_check_out', label: 'missing_check_out' },
+  { value: 'absent', label: 'absent' },
   { value: 'holiday', label: 'holiday' },
 ];
 
 const statusColors: Record<string, string> = {
   normal: 'bg-emerald-500/20 text-emerald-300',
-  late_or_early: 'bg-amber-500/20 text-amber-300',
-  missing_scan: 'bg-red-500/20 text-red-300',
-  holiday: 'bg-violet-500/20 text-violet-300',
+  late: 'bg-amber-500/20 text-amber-300',
+  early_leave: 'bg-orange-500/20 text-orange-300',
+  missing_check_in: 'bg-red-500/20 text-red-300',
+  missing_check_out: 'bg-rose-500/20 text-rose-300',
+  absent: 'bg-violet-500/20 text-violet-300',
+  holiday: 'bg-slate-500/20 text-slate-300',
 };
 
 onMounted(() => {
