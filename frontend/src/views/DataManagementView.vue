@@ -2,8 +2,16 @@
 import { ref, computed, onMounted } from 'vue';
 import api from '../services/api';
 import { useI18n } from '../i18n';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 
 const { t } = useI18n();
+
+const selectCls =
+  'h-9 w-full rounded-md border border-input bg-background px-3 text-sm text-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-ring';
 
 import {
   CircleStackIcon,
@@ -248,37 +256,37 @@ const rangeEnd = computed(() => Math.min(currentPage.value * pageSize, totalReco
 <template>
   <div class="p-4 md:p-8 max-w-6xl mx-auto">
     <!-- Page Title -->
-    <h1 class="font-display text-3xl font-semibold tracking-wide text-accent flex items-center gap-2 mb-7">
+    <h1 class="font-display text-3xl font-semibold tracking-wide text-primary flex items-center gap-2 mb-7">
       <CircleStackIcon class="w-7 h-7" /> {{ t('data_title') }}
     </h1>
 
     <!-- Section 1: Overview Cards -->
     <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6 stagger">
-      <div class="bg-dark-800 border border-dark-700 rounded-2xl p-5 shadow-sm flex items-center gap-4 card-hover animate-fadeInUp">
+      <div class="bg-card border border-border rounded-2xl p-5 shadow-sm flex items-center gap-4 card-hover animate-fadeInUp">
         <div class="w-12 h-12 rounded-xl bg-accent/10 flex items-center justify-center">
           <UsersIcon class="w-6 h-6 text-accent" />
         </div>
         <div>
-          <p class="text-xs text-slate-400">{{ t('data_employees') }}</p>
-          <p class="text-2xl font-bold text-slate-100">{{ overview.totalEmployees }}</p>
+          <p class="text-xs text-muted-foreground">{{ t('data_employees') }}</p>
+          <p class="text-2xl font-bold text-foreground">{{ overview.totalEmployees }}</p>
         </div>
       </div>
-      <div class="bg-dark-800 border border-dark-700 rounded-2xl p-5 shadow-sm flex items-center gap-4 card-hover animate-fadeInUp">
+      <div class="bg-card border border-border rounded-2xl p-5 shadow-sm flex items-center gap-4 card-hover animate-fadeInUp">
         <div class="w-12 h-12 rounded-xl bg-[#6f9e87]/15 flex items-center justify-center">
           <DocumentTextIcon class="w-6 h-6 text-[#5e8a74]" />
         </div>
         <div>
-          <p class="text-xs text-slate-400">{{ t('data_records') }}</p>
-          <p class="text-2xl font-bold text-slate-100">{{ overview.totalRecords }}</p>
+          <p class="text-xs text-muted-foreground">{{ t('data_records') }}</p>
+          <p class="text-2xl font-bold text-foreground">{{ overview.totalRecords }}</p>
         </div>
       </div>
-      <div class="bg-dark-800 border border-dark-700 rounded-2xl p-5 shadow-sm flex items-center gap-4 card-hover animate-fadeInUp">
+      <div class="bg-card border border-border rounded-2xl p-5 shadow-sm flex items-center gap-4 card-hover animate-fadeInUp">
         <div class="w-12 h-12 rounded-xl bg-[#8a8fc4]/15 flex items-center justify-center">
           <CalendarDaysIcon class="w-6 h-6 text-[#767bb5]" />
         </div>
         <div>
-          <p class="text-xs text-slate-400">{{ t('data_date_range') }}</p>
-          <p class="text-sm font-semibold text-slate-100">
+          <p class="text-xs text-muted-foreground">{{ t('data_date_range') }}</p>
+          <p class="text-sm font-semibold text-foreground">
             <template v-if="overview.dateRange">{{ formatDate(overview.dateRange.min) }} - {{ formatDate(overview.dateRange.max) }}</template>
             <template v-else>-</template>
           </p>
@@ -287,35 +295,31 @@ const rangeEnd = computed(() => Math.min(currentPage.value * pageSize, totalReco
     </div>
 
     <!-- Section 2: Filter Bar -->
-    <div class="bg-dark-800 border border-dark-700 rounded-2xl p-5 shadow-sm mb-4 flex flex-col md:flex-row md:flex-wrap gap-3 md:items-end">
-      <div class="w-full md:flex-1 md:min-w-[180px]">
-        <label class="block text-xs text-slate-400 mb-1">{{ t('data_search_name') }}</label>
+    <div class="bg-card border border-border rounded-2xl p-5 shadow-sm mb-4 flex flex-col md:flex-row md:flex-wrap gap-3 md:items-end">
+      <div class="w-full md:flex-1 md:min-w-[180px] space-y-1.5">
+        <Label class="text-xs text-muted-foreground">{{ t('data_search_name') }}</Label>
         <div class="relative">
-          <MagnifyingGlassIcon class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" />
-          <input v-model="searchName" type="text" :placeholder="t('data_search_placeholder')"
-            class="w-full pl-9 pr-3 py-2 bg-dark-900 border border-dark-600 rounded-lg text-slate-100 text-sm focus:outline-none focus:border-accent" />
+          <MagnifyingGlassIcon class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground z-10" />
+          <Input v-model="searchName" type="text" :placeholder="t('data_search_placeholder')" class="pl-9" />
         </div>
       </div>
-      <div class="w-full md:w-auto md:min-w-[150px]">
-        <label class="block text-xs text-slate-400 mb-1">{{ t('filter_date_from') }}</label>
-        <input v-model="filterDateFrom" type="date"
-          class="w-full px-3 py-2 bg-dark-900 border border-dark-600 rounded-lg text-slate-100 text-sm focus:outline-none focus:border-accent [&::-webkit-calendar-picker-indicator]:cursor-pointer" />
+      <div class="w-full md:w-auto md:min-w-[150px] space-y-1.5">
+        <Label class="text-xs text-muted-foreground">{{ t('filter_date_from') }}</Label>
+        <Input v-model="filterDateFrom" type="date" />
       </div>
-      <div class="w-full md:w-auto md:min-w-[150px]">
-        <label class="block text-xs text-slate-400 mb-1">{{ t('filter_date_to') }}</label>
-        <input v-model="filterDateTo" type="date"
-          class="w-full px-3 py-2 bg-dark-900 border border-dark-600 rounded-lg text-slate-100 text-sm focus:outline-none focus:border-accent [&::-webkit-calendar-picker-indicator]:cursor-pointer" />
+      <div class="w-full md:w-auto md:min-w-[150px] space-y-1.5">
+        <Label class="text-xs text-muted-foreground">{{ t('filter_date_to') }}</Label>
+        <Input v-model="filterDateTo" type="date" />
       </div>
-      <div class="w-full md:w-auto md:min-w-[140px]">
-        <label class="block text-xs text-slate-400 mb-1">{{ t('data_status') }}</label>
-        <select v-model="filterStatus"
-          class="w-full px-3 py-2 bg-dark-900 border border-dark-600 rounded-lg text-slate-100 text-sm focus:outline-none focus:border-accent">
+      <div class="w-full md:w-auto md:min-w-[140px] space-y-1.5">
+        <Label class="text-xs text-muted-foreground">{{ t('data_status') }}</Label>
+        <select v-model="filterStatus" :class="selectCls">
           <option v-for="opt in statusOptions" :key="opt.value" :value="opt.value">{{ opt.label }}</option>
         </select>
       </div>
       <div class="flex flex-col sm:flex-row gap-2 w-full md:w-auto">
-        <button @click="search" class="w-full sm:w-auto px-4 py-2 bg-accent hover:bg-accent-light text-dark-900 font-semibold rounded-lg text-sm transition">{{ t('search') }}</button>
-        <button @click="exportExcel" :disabled="exporting" class="flex items-center justify-center gap-1.5 w-full sm:w-auto px-4 py-2 bg-[#6f9e87] hover:bg-[#5e8a74] text-white font-semibold rounded-lg text-sm transition disabled:opacity-50">
+        <Button @click="search">{{ t('search') }}</Button>
+        <Button :disabled="exporting" class="gap-1.5 bg-[#6f9e87] hover:bg-[#5e8a74] text-white" @click="exportExcel">
           <template v-if="exporting">
             <div class="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
             {{ t('data_exporting') }}
@@ -327,140 +331,135 @@ const rangeEnd = computed(() => Math.min(currentPage.value * pageSize, totalReco
           <template v-else>
             <ArrowDownTrayIcon class="w-4 h-4" /> {{ t('data_export') }}
           </template>
-        </button>
-        <button @click="resetFilters" class="w-full sm:w-auto px-4 py-2 bg-dark-700 hover:bg-dark-600 text-slate-300 rounded-lg text-sm transition">{{ t('reset') }}</button>
+        </Button>
+        <Button variant="secondary" @click="resetFilters">{{ t('reset') }}</Button>
       </div>
     </div>
 
     <!-- Floating Action Bar -->
-    <div v-if="selectedIds.size > 0" class="bg-dark-800 border border-accent/30 rounded-2xl p-3 shadow-sm mb-4 flex items-center justify-between">
-      <span class="text-sm text-slate-300">{{ t('data_selected') }} <span class="text-accent font-semibold">{{ selectedIds.size }}</span> {{ t('data_items') }}</span>
-      <button @click="deleteSelectedRecords" class="flex items-center gap-1.5 px-4 py-2 bg-red-600 hover:bg-red-500 text-white rounded-lg text-sm transition">
+    <div v-if="selectedIds.size > 0" class="bg-card border border-primary/30 rounded-2xl p-3 shadow-sm mb-4 flex items-center justify-between">
+      <span class="text-sm text-muted-foreground">{{ t('data_selected') }} <span class="text-primary font-semibold">{{ selectedIds.size }}</span> {{ t('data_items') }}</span>
+      <Button variant="destructive" size="sm" class="gap-1.5" @click="deleteSelectedRecords">
         <TrashIcon class="w-4 h-4" /> {{ t('data_delete_selected') }}
-      </button>
+      </Button>
     </div>
 
     <!-- Section 3: Records Table -->
-    <div class="bg-dark-800 border border-dark-700 rounded-2xl overflow-x-auto mb-6 shadow-sm">
-      <table class="w-full text-sm">
-        <thead>
-          <tr class="border-b border-dark-700 text-slate-400">
-            <th class="text-left px-4 py-3 font-medium w-10">
+    <div class="bg-card border border-border rounded-2xl overflow-x-auto mb-6 shadow-sm">
+      <Table>
+        <TableHeader>
+          <TableRow>
+            <TableHead class="w-10">
               <input type="checkbox" :checked="selectAll" @change="selectAll = ($event.target as HTMLInputElement).checked"
-                class="rounded border-dark-600 bg-dark-900 text-accent focus:ring-accent" />
-            </th>
-            <th class="text-left px-4 py-3 font-medium">{{ t('data_table_name') }}</th>
-            <th class="text-left px-4 py-3 font-medium">{{ t('data_table_date') }}</th>
-            <th class="hidden sm:table-cell text-left px-4 py-3 font-medium">{{ t('data_table_raw') }}</th>
-            <th class="text-left px-4 py-3 font-medium">{{ t('data_table_status') }}</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr v-if="recordsLoading">
-            <td colspan="5" class="px-4 py-8 text-center text-slate-500">
+                class="rounded border-input bg-background text-primary focus:ring-ring" />
+            </TableHead>
+            <TableHead>{{ t('data_table_name') }}</TableHead>
+            <TableHead>{{ t('data_table_date') }}</TableHead>
+            <TableHead class="hidden sm:table-cell">{{ t('data_table_raw') }}</TableHead>
+            <TableHead>{{ t('data_table_status') }}</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          <TableRow v-if="recordsLoading">
+            <TableCell colspan="5" class="text-center text-muted-foreground py-8">
               <div class="w-8 h-8 border-4 border-accent/30 border-t-accent rounded-full animate-spin mx-auto mb-2"></div>
               {{ t('loading') }}
-            </td>
-          </tr>
-          <tr v-else-if="records.length === 0">
-            <td colspan="5" class="px-4 py-8 text-center text-slate-500">{{ t('data_no_data') }}</td>
-          </tr>
-          <tr v-for="rec in records" :key="rec.id" class="border-b border-dark-700/50 hover:bg-dark-700/30 transition-colors duration-200">
-            <td class="px-4 py-3">
+            </TableCell>
+          </TableRow>
+          <TableRow v-else-if="records.length === 0">
+            <TableCell colspan="5" class="text-center text-muted-foreground py-8">{{ t('data_no_data') }}</TableCell>
+          </TableRow>
+          <TableRow v-for="rec in records" :key="rec.id">
+            <TableCell>
               <input type="checkbox" :checked="selectedIds.has(rec.id)" @change="toggleSelect(rec.id)"
-                class="rounded border-dark-600 bg-dark-900 text-accent focus:ring-accent" />
-            </td>
-            <td class="px-4 py-3 text-slate-100">{{ rec.fullName }}</td>
-            <td class="px-4 py-3 text-slate-300">{{ formatDate(rec.date) }}</td>
-            <td class="hidden sm:table-cell px-4 py-3 text-slate-400 font-mono text-xs">{{ rec.rawValue }}</td>
-            <td class="px-4 py-3">
-              <span :class="statusColors[rec.status] || 'bg-slate-500/20 text-slate-300'"
+                class="rounded border-input bg-background text-primary focus:ring-ring" />
+            </TableCell>
+            <TableCell class="text-foreground font-medium">{{ rec.fullName }}</TableCell>
+            <TableCell class="text-muted-foreground">{{ formatDate(rec.date) }}</TableCell>
+            <TableCell class="hidden sm:table-cell text-muted-foreground font-mono text-xs">{{ rec.rawValue }}</TableCell>
+            <TableCell>
+              <span :class="statusColors[rec.status] || 'bg-secondary text-muted-foreground'"
                 class="px-2 py-0.5 rounded-full text-xs font-medium">{{ rec.status }}</span>
-            </td>
-          </tr>
-        </tbody>
-      </table>
+            </TableCell>
+          </TableRow>
+        </TableBody>
+      </Table>
 
       <!-- Pagination -->
-      <div class="flex items-center justify-between px-4 py-3 border-t border-dark-700">
-        <span class="text-xs text-slate-400">
+      <div class="flex items-center justify-between px-4 py-3 border-t border-border">
+        <span class="text-xs text-muted-foreground">
           <template v-if="totalRecords > 0">{{ t('data_showing') }} {{ rangeStart }}-{{ rangeEnd }} {{ t('data_of') }} {{ totalRecords }} {{ t('data_items') }}</template>
           <template v-else>{{ t('data_no_data') }}</template>
         </span>
         <div class="flex items-center gap-2">
-          <button @click="prevPage" :disabled="currentPage <= 1"
-            class="p-1.5 rounded-lg transition-colors disabled:opacity-30 disabled:cursor-not-allowed text-slate-400 hover:text-accent hover:bg-dark-600">
+          <Button variant="ghost" size="icon-sm" :disabled="currentPage <= 1" @click="prevPage">
             <ChevronLeftIcon class="w-4 h-4" />
-          </button>
-          <span class="text-sm text-slate-300">{{ currentPage }} / {{ totalPages }}</span>
-          <button @click="nextPage" :disabled="currentPage >= totalPages"
-            class="p-1.5 rounded-lg transition-colors disabled:opacity-30 disabled:cursor-not-allowed text-slate-400 hover:text-accent hover:bg-dark-600">
+          </Button>
+          <span class="text-sm text-muted-foreground">{{ currentPage }} / {{ totalPages }}</span>
+          <Button variant="ghost" size="icon-sm" :disabled="currentPage >= totalPages" @click="nextPage">
             <ChevronRightIcon class="w-4 h-4" />
-          </button>
+          </Button>
         </div>
       </div>
     </div>
 
     <!-- Section 4: Danger Zone -->
-    <div class="bg-dark-800 border border-red-500/30 rounded-2xl p-6 shadow-sm transition-all duration-300 hover:shadow-[0_0_20px_rgba(239,68,68,0.1)]">
-      <h2 class="font-display text-xl font-semibold text-red-400 flex items-center gap-2 mb-5 tracking-wide">
+    <div class="bg-card border border-destructive/30 rounded-2xl p-6 shadow-sm transition-all duration-300 hover:shadow-[0_0_20px_rgba(239,68,68,0.1)]">
+      <h2 class="font-display text-xl font-semibold text-destructive flex items-center gap-2 mb-5 tracking-wide">
         <ExclamationTriangleIcon class="w-6 h-6" /> {{ t('data_danger_title') }}
       </h2>
 
       <div class="space-y-4">
         <!-- Delete by date range -->
-        <div class="flex flex-wrap items-end gap-3 p-4 bg-dark-900/50 rounded-lg border border-dark-700">
-          <div>
-            <label class="block text-xs text-slate-400 mb-1">{{ t('data_delete_by_date') }}</label>
-            <div class="flex gap-2">
-              <input v-model="dangerDateFrom" type="date"
-                class="px-3 py-2 bg-dark-900 border border-dark-600 rounded-lg text-slate-100 text-sm focus:outline-none focus:border-red-400 [&::-webkit-calendar-picker-indicator]:cursor-pointer" />
-              <span class="text-slate-500 self-center">{{ t('data_to') }}</span>
-              <input v-model="dangerDateTo" type="date"
-                class="px-3 py-2 bg-dark-900 border border-dark-600 rounded-lg text-slate-100 text-sm focus:outline-none focus:border-red-400 [&::-webkit-calendar-picker-indicator]:cursor-pointer" />
+        <div class="flex flex-wrap items-end gap-3 p-4 bg-background/50 rounded-lg border border-border">
+          <div class="space-y-1.5">
+            <Label class="text-xs text-muted-foreground">{{ t('data_delete_by_date') }}</Label>
+            <div class="flex gap-2 items-center">
+              <Input v-model="dangerDateFrom" type="date" class="w-auto" />
+              <span class="text-muted-foreground">{{ t('data_to') }}</span>
+              <Input v-model="dangerDateTo" type="date" class="w-auto" />
             </div>
           </div>
-          <button @click="deleteDateRange" class="flex items-center gap-1.5 px-4 py-2 bg-red-600 hover:bg-red-500 text-white rounded-lg text-sm transition">
+          <Button variant="destructive" class="gap-1.5" @click="deleteDateRange">
             <TrashIcon class="w-4 h-4" /> {{ t('delete') }}
-          </button>
+          </Button>
         </div>
 
         <!-- Delete by employee -->
-        <div class="flex flex-wrap items-end gap-3 p-4 bg-dark-900/50 rounded-lg border border-dark-700">
-          <div class="min-w-[220px]">
-            <label class="block text-xs text-slate-400 mb-1">{{ t('data_delete_by_employee') }}</label>
-            <select v-model="dangerEmployeeId"
-              class="w-full px-3 py-2 bg-dark-900 border border-dark-600 rounded-lg text-slate-100 text-sm focus:outline-none focus:border-red-400">
+        <div class="flex flex-wrap items-end gap-3 p-4 bg-background/50 rounded-lg border border-border">
+          <div class="min-w-[220px] space-y-1.5">
+            <Label class="text-xs text-muted-foreground">{{ t('data_delete_by_employee') }}</Label>
+            <select v-model="dangerEmployeeId" :class="selectCls">
               <option value="">{{ t('data_select_employee') }}</option>
               <option v-for="emp in overview.employees" :key="emp.fullName" :value="emp.fullName">{{ emp.fullName }}</option>
             </select>
           </div>
-          <button @click="deleteByEmployee" class="flex items-center gap-1.5 px-4 py-2 bg-red-600 hover:bg-red-500 text-white rounded-lg text-sm transition">
+          <Button variant="destructive" class="gap-1.5" @click="deleteByEmployee">
             <TrashIcon class="w-4 h-4" /> {{ t('delete') }}
-          </button>
+          </Button>
         </div>
 
         <!-- Clear all -->
-        <div class="flex items-center justify-between p-4 bg-red-500/5 rounded-lg border border-red-500/20">
+        <div class="flex items-center justify-between p-4 bg-destructive/5 rounded-lg border border-destructive/20">
           <div>
-            <p class="text-sm font-semibold text-red-400">{{ t('data_clear_all') }}</p>
-            <p class="text-xs text-slate-500 mt-0.5">{{ t('data_clear_all_desc') }}</p>
+            <p class="text-sm font-semibold text-destructive">{{ t('data_clear_all') }}</p>
+            <p class="text-xs text-muted-foreground mt-0.5">{{ t('data_clear_all_desc') }}</p>
           </div>
-          <button @click="clearAll" class="flex items-center gap-1.5 px-4 py-2 bg-red-700 hover:bg-red-600 text-white font-semibold rounded-lg text-sm transition whitespace-nowrap">
+          <Button variant="destructive" class="gap-1.5 whitespace-nowrap" @click="clearAll">
             <TrashIcon class="w-4 h-4" /> {{ t('data_clear_all_btn') }}
-          </button>
+          </Button>
         </div>
       </div>
     </div>
 
-    <!-- Delete Confirmation Modal -->
-    <div v-if="showDeleteModal" class="fixed inset-0 bg-black/60 z-50 flex items-center justify-center glass">
-      <div class="bg-dark-800 border border-dark-700 rounded-2xl p-6 w-full max-w-sm shadow-2xl animate-scaleIn">
+    <!-- Delete Confirmation Dialog -->
+    <Dialog v-model:open="showDeleteModal">
+      <DialogContent class="max-w-sm">
         <!-- Loading state -->
         <template v-if="deleteLoading && !deleteResult">
           <div class="flex flex-col items-center py-6">
-            <div class="w-12 h-12 border-4 border-red-400/30 border-t-red-400 rounded-full animate-spin mb-4"></div>
-            <p class="text-slate-300 text-sm">{{ t('loading') }}</p>
+            <div class="w-12 h-12 border-4 border-destructive/30 border-t-destructive rounded-full animate-spin mb-4"></div>
+            <p class="text-muted-foreground text-sm">{{ t('loading') }}</p>
           </div>
         </template>
 
@@ -470,28 +469,29 @@ const rangeEnd = computed(() => Math.min(currentPage.value * pageSize, totalReco
             <div v-if="deleteResult === 'success'" class="w-14 h-14 bg-[#6f9e87]/20 rounded-full flex items-center justify-center mb-4">
               <svg class="w-8 h-8 text-[#5e8a74]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg>
             </div>
-            <div v-else class="w-14 h-14 bg-red-500/20 rounded-full flex items-center justify-center mb-4">
-              <svg class="w-8 h-8 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
+            <div v-else class="w-14 h-14 bg-destructive/20 rounded-full flex items-center justify-center mb-4">
+              <svg class="w-8 h-8 text-destructive" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
             </div>
-            <p :class="deleteResult === 'success' ? 'text-[#5e8a74]' : 'text-red-400'" class="text-lg font-semibold">{{ deleteMessage }}</p>
-            <button v-if="deleteResult === 'error'" @click="showDeleteModal = false"
-              class="mt-4 px-4 py-2 bg-dark-700 hover:bg-dark-600 text-slate-300 rounded-lg text-sm transition">{{ t('close') }}</button>
+            <p :class="deleteResult === 'success' ? 'text-[#5e8a74]' : 'text-destructive'" class="text-lg font-semibold">{{ deleteMessage }}</p>
+            <Button v-if="deleteResult === 'error'" variant="secondary" class="mt-4" @click="showDeleteModal = false">{{ t('close') }}</Button>
           </div>
         </template>
 
         <!-- Confirmation state -->
         <template v-else>
-          <h3 class="font-display text-xl font-semibold text-slate-100 mb-2 flex items-center gap-2">
-            <ExclamationTriangleIcon class="w-5 h-5 text-red-400" /> {{ t('data_confirm_delete') }}
-          </h3>
-          <p class="text-slate-300 text-sm mb-2">{{ t('data_confirm_delete_msg') }} <span class="text-accent font-semibold">{{ deleteCount }}</span> {{ t('data_items') }}</p>
-          <p class="text-red-400/80 text-xs mb-6">{{ t('data_confirm_delete_warn') }}</p>
-          <div class="flex gap-3 justify-end">
-            <button @click="showDeleteModal = false" class="px-4 py-2 bg-dark-700 hover:bg-dark-600 text-slate-300 rounded-lg text-sm transition">{{ t('cancel') }}</button>
-            <button @click="confirmDelete" class="px-4 py-2 bg-red-600 hover:bg-red-500 text-white rounded-lg text-sm transition">{{ t('data_confirm_btn') }}</button>
-          </div>
+          <DialogHeader>
+            <DialogTitle class="font-display text-xl flex items-center gap-2">
+              <ExclamationTriangleIcon class="w-5 h-5 text-destructive" /> {{ t('data_confirm_delete') }}
+            </DialogTitle>
+          </DialogHeader>
+          <p class="text-muted-foreground text-sm">{{ t('data_confirm_delete_msg') }} <span class="text-primary font-semibold">{{ deleteCount }}</span> {{ t('data_items') }}</p>
+          <p class="text-destructive/80 text-xs">{{ t('data_confirm_delete_warn') }}</p>
+          <DialogFooter>
+            <Button variant="outline" @click="showDeleteModal = false">{{ t('cancel') }}</Button>
+            <Button variant="destructive" @click="confirmDelete">{{ t('data_confirm_btn') }}</Button>
+          </DialogFooter>
         </template>
-      </div>
-    </div>
+      </DialogContent>
+    </Dialog>
   </div>
 </template>

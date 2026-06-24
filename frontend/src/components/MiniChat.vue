@@ -149,30 +149,30 @@ async function downloadExport(msg: MiniMessage) {
     <!-- Panel -->
     <transition name="mini-pop">
       <div v-if="open"
-        class="w-[calc(100vw-2rem)] max-w-sm h-[28rem] max-h-[70vh] flex flex-col bg-dark-800 border border-dark-700 rounded-2xl shadow-2xl overflow-hidden">
+        class="w-[calc(100vw-2rem)] max-w-sm h-[28rem] max-h-[70vh] flex flex-col bg-card border border-border rounded-2xl shadow-2xl overflow-hidden">
         <!-- Header -->
-        <div class="flex items-center gap-2 px-4 py-3 border-b border-dark-700 bg-dark-800/80">
+        <div class="flex items-center gap-2 px-4 py-3 border-b border-border bg-card/80">
           <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-accent to-accent-light flex items-center justify-center shadow">
             <SparklesIcon class="w-4 h-4 text-white" />
           </div>
-          <span class="font-display text-base font-semibold text-slate-100 mr-auto tracking-wide">{{ t('minichat_title') }}</span>
+          <span class="font-display text-base font-semibold text-foreground mr-auto tracking-wide">{{ t('minichat_title') }}</span>
           <button @click="goFull" :title="t('minichat_open_full')"
-            class="p-1.5 rounded-lg text-slate-400 hover:text-accent hover:bg-dark-700 transition">
+            class="p-1.5 rounded-lg text-muted-foreground hover:text-accent hover:bg-secondary transition">
             <ArrowsPointingOutIcon class="w-4 h-4" />
           </button>
-          <button @click="open = false" class="p-1.5 rounded-lg text-slate-400 hover:text-accent hover:bg-dark-700 transition">
+          <button @click="open = false" class="p-1.5 rounded-lg text-muted-foreground hover:text-accent hover:bg-secondary transition">
             <XMarkIcon class="w-4 h-4" />
           </button>
         </div>
 
         <!-- AI + Model selectors -->
-        <div class="flex items-center gap-2 px-3 py-2 border-b border-dark-700 bg-dark-900/40">
+        <div class="flex items-center gap-2 px-3 py-2 border-b border-border bg-background/40">
           <select v-model="provider" @change="onProviderChange" :aria-label="t('chat_provider')"
-            class="flex-1 min-w-0 bg-dark-900 border border-dark-600 rounded-lg text-slate-100 text-xs px-2 py-1.5 focus:outline-none focus:border-accent cursor-pointer">
+            class="flex-1 min-w-0 bg-background border border-input rounded-lg text-foreground text-xs px-2 py-1.5 focus:outline-none focus:border-accent cursor-pointer">
             <option v-for="p in AI_CATALOG" :key="p.id" :value="p.id">{{ p.label }}</option>
           </select>
           <select v-model="model" @change="onModelChange" :aria-label="t('chat_model')"
-            class="flex-1 min-w-0 bg-dark-900 border border-dark-600 rounded-lg text-slate-100 text-xs px-2 py-1.5 focus:outline-none focus:border-accent cursor-pointer">
+            class="flex-1 min-w-0 bg-background border border-input rounded-lg text-foreground text-xs px-2 py-1.5 focus:outline-none focus:border-accent cursor-pointer">
             <option v-for="m in currentModels" :key="m.id" :value="m.id">{{ m.label }}</option>
           </select>
         </div>
@@ -182,7 +182,7 @@ async function downloadExport(msg: MiniMessage) {
           <div v-for="m in messages" :key="m.id" class="flex" :class="m.role === 'user' ? 'justify-end' : 'justify-start'">
             <div class="max-w-[85%]">
               <div v-if="m.role === 'assistant'"
-                class="rounded-2xl rounded-tl-md px-3 py-2 bg-dark-900 border border-dark-700 text-sm text-slate-200 leading-relaxed">
+                class="rounded-2xl rounded-tl-md px-3 py-2 bg-background border border-border text-sm text-foreground leading-relaxed">
                 <div class="prose-mini" v-html="renderMd(m.content)"></div>
                 <button v-if="m.action?.type === 'export'" @click="downloadExport(m)" :disabled="m.downloading"
                   class="mt-2 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-accent/15 text-accent border border-accent/30 text-xs font-medium hover:bg-accent/25 transition disabled:opacity-50">
@@ -199,7 +199,7 @@ async function downloadExport(msg: MiniMessage) {
 
           <!-- Typing -->
           <div v-if="loading" class="flex justify-start">
-            <div class="bg-dark-900 border border-dark-700 rounded-2xl rounded-tl-md px-4 py-3">
+            <div class="bg-background border border-border rounded-2xl rounded-tl-md px-4 py-3">
               <div class="flex items-center gap-1.5">
                 <div class="w-1.5 h-1.5 bg-accent rounded-full" style="animation: dotBounce 1.4s ease-in-out infinite;"></div>
                 <div class="w-1.5 h-1.5 bg-accent rounded-full" style="animation: dotBounce 1.4s ease-in-out 0.2s infinite;"></div>
@@ -211,20 +211,20 @@ async function downloadExport(msg: MiniMessage) {
           <!-- Quick chats (only when empty) -->
           <div v-if="messages.length <= 1 && !loading" class="flex flex-wrap gap-2 pt-1">
             <button v-for="q in quickChats" :key="q" @click="sendText(q)"
-              class="px-3 py-1.5 bg-dark-900 border border-dark-700 rounded-full text-xs text-slate-300 hover:border-accent hover:text-accent transition">
+              class="px-3 py-1.5 bg-background border border-border rounded-full text-xs text-muted-foreground hover:border-accent hover:text-accent transition">
               {{ q }}
             </button>
           </div>
         </div>
 
         <!-- Input -->
-        <form @submit.prevent="send" class="flex gap-2 items-center px-3 py-3 border-t border-dark-700 bg-dark-800/80">
+        <form @submit.prevent="send" class="flex gap-2 items-center px-3 py-3 border-t border-border bg-card/80">
           <input v-model="input" type="text" :placeholder="t('chat_placeholder')" :disabled="loading"
-            class="flex-1 px-3 py-2 bg-dark-900 border border-dark-600 rounded-xl text-slate-100 text-sm focus:outline-none focus:border-accent transition"
+            class="flex-1 px-3 py-2 bg-background border border-input rounded-xl text-foreground text-sm focus:outline-none focus:border-accent transition"
             @keydown.enter.prevent="send" />
           <button type="submit" :disabled="loading || !input.trim()"
             class="p-2.5 rounded-xl flex-shrink-0 transition"
-            :class="!loading && input.trim() ? 'bg-gradient-to-r from-accent to-accent-light text-white shadow-lg shadow-accent/30' : 'bg-dark-700 text-slate-500'">
+            :class="!loading && input.trim() ? 'bg-gradient-to-r from-accent to-accent-light text-white shadow-lg shadow-accent/30' : 'bg-secondary text-muted-foreground'">
             <PaperAirplaneIcon class="w-4 h-4" />
           </button>
         </form>

@@ -5,6 +5,8 @@ import { useAuthStore } from '../stores/auth.store';
 import api from '../services/api';
 import { EnvelopeIcon, LockClosedIcon } from '@heroicons/vue/24/outline';
 import { useI18n } from '../i18n';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 
 const { t } = useI18n();
 const router = useRouter();
@@ -48,7 +50,7 @@ async function handleLogin() {
     style="background: linear-gradient(135deg, #eef1f6 0%, #dbe3ef 50%, #e8edf5 100%); background-size: 200% 200%; animation: gradientShift 12s ease infinite;">
 
     <div
-      class="w-full max-w-md p-8 bg-dark-800/95 glass rounded-2xl shadow-2xl gradient-border animate-fadeInUp"
+      class="w-full max-w-md p-8 bg-card/95 glass rounded-2xl shadow-2xl gradient-border animate-fadeInUp"
       :class="{
         'scale-100 opacity-100': phase !== 'leaving',
         'scale-95 opacity-0': phase === 'leaving',
@@ -58,33 +60,35 @@ async function handleLogin() {
       <h1 class="font-display text-4xl font-semibold text-center mb-2 tracking-wide">
         <span class="bg-gradient-to-r from-accent to-accent-light bg-clip-text text-transparent">Smart Office</span>
       </h1>
-      <p class="text-center text-slate-400 mb-8 tracking-wide">Attendance Management System</p>
+      <p class="text-center text-muted-foreground mb-8 tracking-wide">Attendance Management System</p>
 
       <form @submit.prevent="handleLogin" class="space-y-6">
-        <div>
-          <label class="block text-sm font-medium text-slate-300 mb-2">{{ t('login_email') }}</label>
+        <div class="space-y-2">
+          <Label for="login-email">{{ t('login_email') }}</Label>
           <div class="relative">
-            <EnvelopeIcon class="w-5 h-5 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
-            <input
+            <EnvelopeIcon class="w-5 h-5 text-muted-foreground absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none z-10" />
+            <Input
+              id="login-email"
               v-model="email"
               type="email"
               required
               :disabled="phase !== 'idle'"
-              class="w-full pl-11 pr-4 py-3 bg-dark-900 border border-dark-600 rounded-lg text-slate-100 focus:outline-none focus:border-accent focus:ring-2 focus:ring-accent/30 transition disabled:opacity-60"
+              class="pl-11 h-12 bg-background"
               placeholder="your@email.com"
             />
           </div>
         </div>
-        <div>
-          <label class="block text-sm font-medium text-slate-300 mb-2">{{ t('login_password') }}</label>
+        <div class="space-y-2">
+          <Label for="login-password">{{ t('login_password') }}</Label>
           <div class="relative">
-            <LockClosedIcon class="w-5 h-5 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
-            <input
+            <LockClosedIcon class="w-5 h-5 text-muted-foreground absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none z-10" />
+            <Input
+              id="login-password"
               v-model="password"
               type="password"
               required
               :disabled="phase !== 'idle'"
-              class="w-full pl-11 pr-4 py-3 bg-dark-900 border border-dark-600 rounded-lg text-slate-100 focus:outline-none focus:border-accent focus:ring-2 focus:ring-accent/30 transition disabled:opacity-60"
+              class="pl-11 h-12 bg-background"
               placeholder="••••••••"
             />
           </div>
@@ -124,6 +128,6 @@ async function handleLogin() {
     </div>
 
     <!-- Fade overlay for smooth exit -->
-    <div v-if="phase === 'leaving'" class="fixed inset-0 z-50 bg-dark-900 animate-fadeIn"></div>
+    <div v-if="phase === 'leaving'" class="fixed inset-0 z-50 bg-background animate-fadeIn"></div>
   </div>
 </template>

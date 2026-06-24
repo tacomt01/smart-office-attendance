@@ -71,8 +71,10 @@ export const usePreferencesStore = defineStore('preferences', () => {
          .text-slate-300 { color: #cdd5e4 !important; }
          .text-slate-400, .text-slate-500 { color: #99a2ba !important; }`;
     const textColor = t === 'light' ? '#2b3242' : '#eef1f6';
+    // muted-foreground (ข้อความรอง) ต่อธีม — ใช้กับ shadcn --color-muted-foreground
+    const mutedColor = t === 'light' ? '#76809a' : t === 'medium' ? '#aab3c6' : '#99a2ba';
     themeStyleEl.textContent = `
-:root { ${cssVars} --th-text: ${textColor}; }
+:root { ${cssVars} --th-text: ${textColor}; --th-muted: ${mutedColor}; }
 body { color: ${textColor}; }
 ${textOverrides}
 `;

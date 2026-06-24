@@ -5,6 +5,10 @@ import api, { assetUrl } from '../services/api';
 import { UserCircleIcon, CameraIcon, KeyIcon } from '@heroicons/vue/24/outline';
 import { useI18n } from '../i18n';
 import { validateAvatarFile, AVATAR_ACCEPT } from '../utils/avatar';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Badge } from '@/components/ui/badge';
 
 const { t } = useI18n();
 
@@ -126,9 +130,9 @@ function fullAvatarUrl(path: string | null): string | undefined {
   <div class="p-4 md:p-8 max-w-lg mx-auto">
     <div class="text-center mb-8">
       <div class="relative inline-block group">
-        <div class="w-24 h-24 rounded-full overflow-hidden mx-auto border-2 border-dark-600 bg-dark-800">
+        <div class="w-24 h-24 rounded-full overflow-hidden mx-auto border-2 border-input bg-card">
           <img v-if="avatarUrl" :src="fullAvatarUrl(avatarUrl)" class="w-full h-full object-cover group-hover:scale-105 transition-transform" />
-          <UserCircleIcon v-else class="w-full h-full text-slate-500 group-hover:scale-105 transition-transform" />
+          <UserCircleIcon v-else class="w-full h-full text-muted-foreground group-hover:scale-105 transition-transform" />
         </div>
         <label class="absolute inset-0 rounded-full bg-black/50 opacity-0 group-hover:opacity-100 flex items-center justify-center cursor-pointer transition">
           <CameraIcon class="w-8 h-8 text-white" />
@@ -138,71 +142,60 @@ function fullAvatarUrl(path: string | null): string | undefined {
           <div class="w-8 h-8 border-3 border-accent/30 border-t-accent rounded-full animate-spin"></div>
         </div>
       </div>
-      <p class="text-xs text-slate-500 mt-2">{{ t('profile_avatar_hint') }}</p>
+      <p class="text-xs text-muted-foreground mt-2">{{ t('profile_avatar_hint') }}</p>
 
-      <h1 class="font-display text-3xl font-semibold text-slate-100 mt-4 tracking-wide">{{ t('profile_title') }}</h1>
-      <p class="text-slate-400 text-sm mt-1">{{ auth.user?.email }}</p>
-      <span class="inline-block mt-2 px-3 py-0.5 rounded-full text-xs font-medium"
-        :class="auth.user?.role === 'admin' ? 'bg-[#8a8fc4]/15 text-[#767bb5]' : 'bg-[#6f9e87]/15 text-[#5e8a74]'">
-        {{ auth.user?.role }}
-      </span>
+      <h1 class="font-display text-3xl font-semibold text-foreground mt-4 tracking-wide">{{ t('profile_title') }}</h1>
+      <p class="text-muted-foreground text-sm mt-1">{{ auth.user?.email }}</p>
+      <Badge variant="secondary" class="mt-2">{{ auth.user?.role }}</Badge>
     </div>
 
-    <div class="bg-dark-800 border border-dark-700 rounded-2xl p-6 shadow-sm space-y-4 animate-fadeInUp">
+    <div class="bg-card border border-border rounded-2xl p-6 shadow-sm space-y-4 animate-fadeInUp">
       <!-- Saving overlay -->
       <div v-if="saving" class="flex flex-col items-center py-8 animate-fadeIn">
         <div class="w-12 h-12 border-4 border-accent/30 border-t-accent rounded-full animate-spin mb-4"></div>
-        <p class="text-slate-300 text-sm">{{ t('saving') }}</p>
+        <p class="text-muted-foreground text-sm">{{ t('saving') }}</p>
       </div>
 
       <template v-else>
-        <div>
-          <label class="block text-xs text-slate-400 mb-1">{{ t('users_fullname') }}</label>
-          <input v-model="form.fullName" type="text"
-            class="w-full px-3 py-2 bg-dark-900 border border-dark-600 rounded-lg text-slate-100 text-sm focus:outline-none focus:border-accent" />
+        <div class="space-y-1.5">
+          <Label>{{ t('users_fullname') }}</Label>
+          <Input v-model="form.fullName" type="text" />
         </div>
-        <div>
-          <label class="block text-xs text-slate-400 mb-1">{{ t('users_email') }}</label>
-          <input v-model="form.email" type="email"
-            class="w-full px-3 py-2 bg-dark-900 border border-dark-600 rounded-lg text-slate-100 text-sm focus:outline-none focus:border-accent" />
+        <div class="space-y-1.5">
+          <Label>{{ t('users_email') }}</Label>
+          <Input v-model="form.email" type="email" />
         </div>
 
         <!-- Password toggle section -->
-        <div class="border-t border-dark-700 pt-4">
-          <button @click="togglePassword" type="button"
-            class="flex items-center gap-2 text-sm transition"
-            :class="showPasswordSection ? 'text-[#b8862f]' : 'text-slate-400 hover:text-accent'">
+        <div class="border-t border-border pt-4">
+          <Button variant="ghost" size="sm" type="button" class="gap-2 px-0 hover:bg-transparent"
+            :class="showPasswordSection ? 'text-[#b8862f]' : 'text-muted-foreground hover:text-primary'"
+            @click="togglePassword">
             <KeyIcon class="w-4 h-4" />
             {{ showPasswordSection ? t('users_cancel_password') : t('users_change_password') }}
-          </button>
+          </Button>
           <div v-if="showPasswordSection" class="mt-3 space-y-3">
-            <div>
-              <label class="block text-xs text-slate-400 mb-1">{{ t('profile_current_password') }}</label>
-              <input v-model="form.currentPassword" type="password"
-                class="w-full px-3 py-2 bg-dark-900 border border-dark-600 rounded-lg text-slate-100 text-sm focus:outline-none focus:border-accent" />
+            <div class="space-y-1.5">
+              <Label>{{ t('profile_current_password') }}</Label>
+              <Input v-model="form.currentPassword" type="password" />
             </div>
-            <div>
-              <label class="block text-xs text-slate-400 mb-1">{{ t('profile_new_password') }}</label>
-              <input v-model="form.newPassword" type="password" placeholder="อย่างน้อย 6 ตัวอักษร"
-                class="w-full px-3 py-2 bg-dark-900 border border-dark-600 rounded-lg text-slate-100 text-sm focus:outline-none focus:border-accent" />
+            <div class="space-y-1.5">
+              <Label>{{ t('profile_new_password') }}</Label>
+              <Input v-model="form.newPassword" type="password" placeholder="อย่างน้อย 6 ตัวอักษร" />
             </div>
-            <div>
-              <label class="block text-xs text-slate-400 mb-1">{{ t('profile_confirm_password') }}</label>
-              <input v-model="form.confirmPassword" type="password" placeholder="พิมพ์รหัสผ่านอีกครั้ง"
-                class="w-full px-3 py-2 bg-dark-900 border border-dark-600 rounded-lg text-slate-100 text-sm focus:outline-none focus:border-accent" />
+            <div class="space-y-1.5">
+              <Label>{{ t('profile_confirm_password') }}</Label>
+              <Input v-model="form.confirmPassword" type="password" placeholder="พิมพ์รหัสผ่านอีกครั้ง" />
             </div>
           </div>
         </div>
 
         <div v-if="saveResult" class="p-3 rounded-lg text-sm animate-fadeIn"
-          :class="saveResult === 'success' ? 'bg-[#6f9e87]/15 border border-[#6f9e87]/40 text-[#5e8a74]' : 'bg-red-500/10 border border-red-400/40 text-red-500'">
+          :class="saveResult === 'success' ? 'bg-[#6f9e87]/15 border border-[#6f9e87]/40 text-[#5e8a74]' : 'bg-destructive/10 border border-destructive/40 text-destructive'">
           {{ saveMessage }}
         </div>
 
-        <button @click="saveProfile"
-          class="w-full py-2.5 bg-accent hover:bg-accent-light text-dark-900 font-semibold rounded-lg hover:-translate-y-0.5 shadow-lg hover:shadow-accent/25 transition-all duration-300">
-          {{ t('save') }}
-        </button>
+        <Button class="w-full" size="lg" @click="saveProfile">{{ t('save') }}</Button>
       </template>
     </div>
   </div>

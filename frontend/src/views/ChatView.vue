@@ -312,7 +312,7 @@ function useSuggestion(text: string) {
 </script>
 
 <template>
-  <div class="flex h-[calc(100vh-57px)] bg-dark-900">
+  <div class="flex h-[calc(100vh-57px)] bg-background">
     <!-- Mobile drawer overlay -->
     <div
       v-if="sidebarOpen"
@@ -322,19 +322,19 @@ function useSuggestion(text: string) {
 
     <!-- Sidebar / History -->
     <aside
-      class="fixed md:static top-0 left-0 z-40 h-full w-[260px] flex-shrink-0 flex flex-col bg-dark-800 border-r border-dark-700 transition-transform duration-300 md:translate-x-0"
+      class="fixed md:static top-0 left-0 z-40 h-full w-[260px] flex-shrink-0 flex flex-col bg-card border-r border-border transition-transform duration-300 md:translate-x-0"
       :class="sidebarOpen ? 'translate-x-0' : '-translate-x-full'"
     >
-      <div class="p-3 border-b border-dark-700 flex items-center justify-between">
+      <div class="p-3 border-b border-border flex items-center justify-between">
         <span class="text-sm font-semibold text-slate-200 flex items-center gap-2">
           <SparklesIcon class="w-4 h-4 text-accent" /> {{ t('chat_history') }}
         </span>
-        <button @click="sidebarOpen = false" class="md:hidden p-1 rounded-lg hover:bg-dark-700 text-slate-400">
+        <button @click="sidebarOpen = false" class="md:hidden p-1 rounded-lg hover:bg-secondary text-muted-foreground">
           <XMarkIcon class="w-5 h-5" />
         </button>
       </div>
 
-      <div class="p-3 space-y-2 border-b border-dark-700">
+      <div class="p-3 space-y-2 border-b border-border">
         <button
           @click="startNewChat"
           class="w-full flex items-center justify-center gap-2 px-3 py-2 bg-gradient-to-r from-accent to-accent-light text-white text-sm font-semibold rounded-lg shadow-md shadow-accent/20 hover:-translate-y-0.5 transition"
@@ -342,18 +342,18 @@ function useSuggestion(text: string) {
           <PlusIcon class="w-4 h-4" /> {{ t('chat_new') }}
         </button>
         <div class="relative">
-          <MagnifyingGlassIcon class="w-4 h-4 absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-500" />
+          <MagnifyingGlassIcon class="w-4 h-4 absolute left-2.5 top-1/2 -translate-y-1/2 text-muted-foreground" />
           <input
             v-model="searchQuery"
             type="text"
             :placeholder="t('chat_search')"
-            class="w-full pl-8 pr-3 py-2 bg-dark-900 border border-dark-600 rounded-lg text-slate-100 text-xs focus:outline-none focus:border-accent"
+            class="w-full pl-8 pr-3 py-2 bg-background border border-input rounded-lg text-foreground text-xs focus:outline-none focus:border-accent"
           />
         </div>
       </div>
 
       <div class="flex-1 overflow-y-auto p-2 space-y-1">
-        <p v-if="filteredSessions.length === 0" class="text-xs text-slate-500 text-center py-6">
+        <p v-if="filteredSessions.length === 0" class="text-xs text-muted-foreground text-center py-6">
           {{ t('chat_no_history') }}
         </p>
         <button
@@ -363,17 +363,17 @@ function useSuggestion(text: string) {
           class="w-full text-left px-3 py-2 rounded-lg text-sm transition truncate"
           :class="s.id === activeSessionId
             ? 'bg-accent/15 text-accent border border-accent/30'
-            : 'text-slate-300 hover:bg-dark-700 border border-transparent'"
+            : 'text-muted-foreground hover:bg-secondary border border-transparent'"
           :title="s.title"
         >
           {{ s.title }}
         </button>
       </div>
 
-      <div class="p-3 border-t border-dark-700">
+      <div class="p-3 border-t border-border">
         <button
           @click="clearAllSessions"
-          class="w-full flex items-center justify-center gap-2 px-3 py-2 bg-dark-700 hover:bg-red-600/80 text-slate-300 hover:text-white text-sm rounded-lg transition"
+          class="w-full flex items-center justify-center gap-2 px-3 py-2 bg-secondary hover:bg-red-600/80 text-muted-foreground hover:text-white text-sm rounded-lg transition"
         >
           <TrashIcon class="w-4 h-4" /> {{ t('chat_clear') }}
         </button>
@@ -383,20 +383,20 @@ function useSuggestion(text: string) {
     <!-- Main chat column -->
     <div class="flex-1 flex flex-col min-w-0">
     <!-- Header -->
-    <div class="px-4 md:px-6 py-4 border-b border-dark-700 bg-dark-800/50 glass">
+    <div class="px-4 md:px-6 py-4 border-b border-border bg-card/50 glass">
       <div class="flex md:items-center gap-3 flex-col md:flex-row">
         <div class="flex items-center gap-3">
-          <button @click="sidebarOpen = true" class="md:hidden p-2 rounded-lg hover:bg-dark-700 text-slate-300 flex-shrink-0">
+          <button @click="sidebarOpen = true" class="md:hidden p-2 rounded-lg hover:bg-secondary text-muted-foreground flex-shrink-0">
             <Bars3Icon class="w-5 h-5" />
           </button>
           <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-accent to-accent-light flex items-center justify-center shadow-lg shadow-accent/20 flex-shrink-0">
             <SparklesIcon class="w-5 h-5 text-white" />
           </div>
           <div class="mr-auto">
-            <h1 class="font-display text-xl font-semibold text-slate-100 tracking-wide">{{ t('chat_title') }}</h1>
-            <p class="text-xs text-slate-400 flex items-center gap-1.5">
+            <h1 class="font-display text-xl font-semibold text-foreground tracking-wide">{{ t('chat_title') }}</h1>
+            <p class="text-xs text-muted-foreground flex items-center gap-1.5">
               <span class="w-1.5 h-1.5 rounded-full" :style="{ backgroundColor: currentProvider?.color }"></span>
-              {{ providerLabel }} <span class="text-slate-600">·</span> {{ modelLabel }}
+              {{ providerLabel }} <span class="text-muted-foreground/60">·</span> {{ modelLabel }}
             </p>
           </div>
         </div>
@@ -405,16 +405,16 @@ function useSuggestion(text: string) {
         <div class="flex flex-col sm:flex-row sm:items-end gap-3 md:ml-auto">
           <!-- Provider segmented control -->
           <div class="flex flex-col gap-1">
-            <label class="text-[10px] font-medium text-slate-500 px-1 uppercase tracking-wider">{{ t('chat_provider') }}</label>
-            <div class="inline-flex p-1 bg-dark-900 border border-dark-600 rounded-xl gap-1">
+            <label class="text-[10px] font-medium text-muted-foreground px-1 uppercase tracking-wider">{{ t('chat_provider') }}</label>
+            <div class="inline-flex p-1 bg-background border border-input rounded-xl gap-1">
               <button
                 v-for="p in AI_CATALOG" :key="p.id"
                 type="button"
                 @click="selectProvider(p.id)"
                 class="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium transition-all duration-200"
                 :class="provider === p.id
-                  ? 'bg-dark-700 text-slate-100 shadow-sm ring-1 ring-accent/40'
-                  : 'text-slate-400 hover:text-slate-200 hover:bg-dark-700/50'"
+                  ? 'bg-secondary text-foreground shadow-sm ring-1 ring-accent/40'
+                  : 'text-muted-foreground hover:text-slate-200 hover:bg-secondary/50'"
                 :aria-pressed="provider === p.id"
                 :title="p.label"
               >
@@ -425,17 +425,17 @@ function useSuggestion(text: string) {
           </div>
           <!-- Model dropdown -->
           <div class="flex flex-col gap-1">
-            <label class="text-[10px] font-medium text-slate-500 px-1 uppercase tracking-wider">{{ t('chat_model') }}</label>
+            <label class="text-[10px] font-medium text-muted-foreground px-1 uppercase tracking-wider">{{ t('chat_model') }}</label>
             <div class="relative">
               <select
                 v-model="model"
                 @change="onModelChange"
                 :aria-label="t('chat_model')"
-                class="appearance-none w-full sm:w-auto bg-dark-900 border border-dark-600 rounded-xl text-slate-100 text-xs font-medium pl-3 pr-8 py-2 focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent/30 transition cursor-pointer hover:border-dark-500"
+                class="appearance-none w-full sm:w-auto bg-background border border-input rounded-xl text-foreground text-xs font-medium pl-3 pr-8 py-2 focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent/30 transition cursor-pointer hover:border-input"
               >
                 <option v-for="m in currentModels" :key="m.id" :value="m.id">{{ m.label }}</option>
               </select>
-              <ChevronDownIcon class="w-4 h-4 absolute right-2 top-1/2 -translate-y-1/2 text-slate-500 pointer-events-none" />
+              <ChevronDownIcon class="w-4 h-4 absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none" />
             </div>
           </div>
         </div>
@@ -457,7 +457,7 @@ function useSuggestion(text: string) {
             class="w-8 h-8 rounded-lg bg-gradient-to-br from-accent to-accent-light flex items-center justify-center shadow-md">
             <SparklesIcon class="w-4 h-4 text-white" />
           </div>
-          <div v-else class="w-8 h-8 rounded-lg overflow-hidden bg-dark-700 shadow-md">
+          <div v-else class="w-8 h-8 rounded-lg overflow-hidden bg-secondary shadow-md">
             <img v-if="userAvatar" :src="userAvatar" class="w-full h-full object-cover" />
             <div v-else class="w-full h-full flex items-center justify-center text-xs font-bold text-accent">
               {{ userName.charAt(0).toUpperCase() }}
@@ -469,7 +469,7 @@ function useSuggestion(text: string) {
         <div class="max-w-[85%] md:max-w-[75%] group relative">
           <!-- AI Message -->
           <div v-if="msg.role === 'assistant'"
-            class="rounded-2xl rounded-tl-md px-4 py-3 bg-dark-800 border border-dark-700 shadow-lg text-sm leading-relaxed">
+            class="rounded-2xl rounded-tl-md px-4 py-3 bg-card border border-border shadow-lg text-sm leading-relaxed">
             <div class="prose-chat" v-html="renderMd(msg.content)"></div>
 
             <!-- AI-triggered export action -->
@@ -488,14 +488,14 @@ function useSuggestion(text: string) {
             <!-- Copy -->
             <button
               @click="copyToClipboard(msg)"
-              class="absolute -top-2 -right-2 opacity-0 group-hover:opacity-100 transition-all bg-dark-700 border border-dark-600 rounded-lg p-1.5 hover:bg-dark-600 shadow-md"
+              class="absolute -top-2 -right-2 opacity-0 group-hover:opacity-100 transition-all bg-secondary border border-input rounded-lg p-1.5 hover:bg-accent shadow-md"
               :title="copiedId === msg.id ? t('chat_copied') : 'Copy'"
             >
               <CheckIcon v-if="copiedId === msg.id" class="w-3.5 h-3.5 text-[#5e8a74]" />
-              <ClipboardDocumentIcon v-else class="w-3.5 h-3.5 text-slate-400" />
+              <ClipboardDocumentIcon v-else class="w-3.5 h-3.5 text-muted-foreground" />
             </button>
             <span v-if="copiedId === msg.id"
-              class="absolute -top-8 right-0 text-xs bg-dark-700 text-[#5e8a74] px-2 py-1 rounded-md border border-dark-600 whitespace-nowrap animate-fadeIn">
+              class="absolute -top-8 right-0 text-xs bg-secondary text-[#5e8a74] px-2 py-1 rounded-md border border-input whitespace-nowrap animate-fadeIn">
               {{ t('chat_copied') }}
             </span>
           </div>
@@ -507,7 +507,7 @@ function useSuggestion(text: string) {
           </div>
 
           <!-- Timestamp -->
-          <p class="text-[10px] text-slate-500 mt-1 px-1" :class="msg.role === 'user' ? 'text-right' : ''">
+          <p class="text-[10px] text-muted-foreground mt-1 px-1" :class="msg.role === 'user' ? 'text-right' : ''">
             {{ msg.time }}
           </p>
         </div>
@@ -518,7 +518,7 @@ function useSuggestion(text: string) {
         <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-accent to-accent-light flex items-center justify-center shadow-md flex-shrink-0">
           <SparklesIcon class="w-4 h-4 text-white" />
         </div>
-        <div class="bg-dark-800 border border-dark-700 rounded-2xl rounded-tl-md px-5 py-4 shadow-lg">
+        <div class="bg-card border border-border rounded-2xl rounded-tl-md px-5 py-4 shadow-lg">
           <div class="flex items-center gap-1.5">
             <div class="w-2 h-2 bg-accent rounded-full" style="animation: dotBounce 1.4s ease-in-out infinite;"></div>
             <div class="w-2 h-2 bg-accent rounded-full" style="animation: dotBounce 1.4s ease-in-out 0.2s infinite;"></div>
@@ -529,14 +529,14 @@ function useSuggestion(text: string) {
 
       <!-- Suggestions (show when only welcome message) -->
       <div v-if="messages.length <= 1 && !loading" class="max-w-2xl mx-auto mt-6">
-        <p class="text-center text-xs font-medium text-slate-500 uppercase tracking-wider mb-3">{{ t('chat_suggestions') }}</p>
+        <p class="text-center text-xs font-medium text-muted-foreground uppercase tracking-wider mb-3">{{ t('chat_suggestions') }}</p>
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
           <button
             v-for="s in suggestions" :key="s"
             @click="useSuggestion(s)"
-            class="group flex items-center gap-2 text-left px-4 py-3 bg-dark-800 border border-dark-700 rounded-xl text-sm text-slate-300 hover:border-accent/60 hover:text-accent hover:bg-dark-700/50 transition-all duration-200 hover:shadow-md hover:shadow-accent/5"
+            class="group flex items-center gap-2 text-left px-4 py-3 bg-card border border-border rounded-xl text-sm text-muted-foreground hover:border-accent/60 hover:text-accent hover:bg-secondary/50 transition-all duration-200 hover:shadow-md hover:shadow-accent/5"
           >
-            <SparklesIcon class="w-4 h-4 text-slate-600 group-hover:text-accent transition-colors flex-shrink-0" />
+            <SparklesIcon class="w-4 h-4 text-muted-foreground/60 group-hover:text-accent transition-colors flex-shrink-0" />
             <span class="truncate">{{ s }}</span>
           </button>
         </div>
@@ -544,14 +544,14 @@ function useSuggestion(text: string) {
     </div>
 
     <!-- Input Area -->
-    <div class="px-4 md:px-6 py-4 border-t border-dark-700 bg-dark-800/80 glass">
+    <div class="px-4 md:px-6 py-4 border-t border-border bg-card/80 glass">
       <form @submit.prevent="send" class="flex gap-3 items-end">
         <div class="flex-1 relative">
           <input
             v-model="input"
             type="text"
             :placeholder="t('chat_placeholder')"
-            class="w-full px-5 py-3.5 bg-dark-900 border border-dark-600 rounded-2xl text-slate-100 text-sm focus:outline-none focus:border-accent focus:ring-2 focus:ring-accent/20 transition pr-12"
+            class="w-full px-5 py-3.5 bg-background border border-input rounded-2xl text-foreground text-sm focus:outline-none focus:border-accent focus:ring-2 focus:ring-accent/20 transition pr-12"
             :disabled="loading"
             @keydown.enter.prevent="send"
           />
@@ -562,7 +562,7 @@ function useSuggestion(text: string) {
           class="p-3.5 rounded-2xl transition-all duration-300 flex-shrink-0"
           :class="!loading && input.trim()
             ? 'bg-gradient-to-r from-accent to-accent-light text-white shadow-lg shadow-accent/30 hover:-translate-y-0.5 hover:shadow-xl hover:shadow-accent/40'
-            : 'bg-dark-700 text-slate-500'"
+            : 'bg-secondary text-muted-foreground'"
         >
           <PaperAirplaneIcon class="w-5 h-5" />
         </button>

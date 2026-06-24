@@ -5,8 +5,11 @@
 
 ## 🛠️ Technology Stack & UI Theme
 * **UI Theme (Phase 9 — ปัจจุบัน):** **Soft Luxury Minimalist — "Cool Pearl + Dusty Blue"** (โทนสบายตา ไม่สว่างหรือมืดเกินไป) เน้นพื้นหลังโทนมุก/ฟ้าหม่น การ์ดสีอ่อนนวล เส้นขอบบางนุ่ม เงาเบา และ accent สีฟ้าหม่น (dusty blue) — หัวข้อใช้ฟอนต์ serif (Cormorant Garamond) เนื้อหาใช้ Inter
+    * **Component layer (Phase 12) = `shadcn-vue`** (Tailwind v4 + reka-ui): ทุกหน้าใช้ component กลางใน `frontend/src/components/ui/*` (Button, Card, Input, Label, Select, Table, Dialog, DropdownMenu, Popover, Tabs, Badge, Avatar, Sheet, Sonner/Toaster, Calendar/RangeCalendar ฯลฯ) — มี `cn()` ที่ `src/lib/utils.ts`, alias `@` → `src`, config ที่ `components.json`
     * **ระบบสลับธีม 3 แบบ (จูนใหม่ทั้งหมดเป็นโทน soft luxury):** `light` (พื้นมุก — ค่าเริ่มต้น), `medium` (slate-blue กลาง), `dark` (soft-ink ไม่ใช่ดำสนิท) — สลับได้จากปุ่มบน navbar, จำค่าใน `localStorage`
     * **แหล่งความจริงของ palette มี 2 ที่ (ต้องแก้ให้ตรงกัน):** token เริ่มต้นใน `frontend/src/assets/main.css` (`@theme`) และ runtime switcher ใน `frontend/src/stores/preferences.store.ts` (`THEMES` + `applyTheme`) — ทุก component อ้างอิงผ่าน token `bg-dark-900/800/700/600`, `text-accent`, `text-accent-light`, `border-dark-700` จึงเปลี่ยนสีทั้งระบบได้จากจุดเดียว
+    * **shadcn tokens ผูกกับ palette เดิม (Phase 12):** `main.css @theme` แมป `--color-background/card/popover/secondary/muted/border/input/primary/foreground/muted-foreground/destructive` เข้ากับ `--color-dark-*`/`--th-*` ที่ store inject ต่อธีม → component shadcn (`bg-background`, `bg-primary`, `text-muted-foreground`, `border-border`…) เปลี่ยนสีตามทั้ง 3 ธีมจากจุดเดียว
+    * **ตัวกรองวันที่ใน Dashboard (Phase 12):** รวมเป็นตัวเดียว `components/dashboard/DateRangePicker.vue` — Popover + Tabs เลือกช่วงได้ระดับ **วัน/เดือน/ปี** แล้ว normalize เป็น `dateFrom/dateTo` (backend เดิมไม่ต้องแก้)
     * **สถานะ/สีกราฟ:** ใช้โทน muted (sage/amber/terracotta/rose/mauve/periwinkle) ให้อ่านง่ายทั้งบนพื้นมุกและพื้น ink — กำหนดใน `STATUS_CONFIG` ของ chart components และ `statusColors` ใน DataManagement
     * *(ของเดิม Phase 1–8 เป็น "Premium Dark Mode Only" — ปัจจุบันเลิกใช้แล้ว)*
 * **Frontend:** Vue 3 (Composition API), Pinia (State Management), Tailwind CSS, TypeScript

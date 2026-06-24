@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@import "tw-animate-css";
 
 /* Soft Luxury Minimalist — Cool Pearl + Dusty Blue (default = light/pearl) */
 @theme {
@@ -9,6 +10,28 @@
   --color-accent: #5b7196;
   --color-accent-light: #7e93b6;
   --font-display: 'Cormorant Garamond', 'Playfair Display', Georgia, serif;
+
+  /* ── shadcn-vue token bridge → soft luxury palette (สลับ 3 ธีมผ่าน data-theme) ── */
+  /* ค่าทั้งหมดอ้าง --color-dark-* / --th-* ที่ preferences.store inject ต่อธีม จึงเปลี่ยนสีทั้งระบบจากจุดเดียว */
+  --color-background: var(--color-dark-900);
+  --color-foreground: var(--th-text, #2b3242);
+  --color-card: var(--color-dark-800);
+  --color-card-foreground: var(--th-text, #2b3242);
+  --color-popover: var(--color-dark-800);
+  --color-popover-foreground: var(--th-text, #2b3242);
+  --color-primary: var(--color-accent);
+  --color-primary-foreground: var(--color-dark-900);
+  --color-secondary: var(--color-dark-700);
+  --color-secondary-foreground: var(--th-text, #2b3242);
+  --color-muted: var(--color-dark-700);
+  --color-muted-foreground: var(--th-muted, #76809a);
+  --color-accent-foreground: var(--color-dark-900);
+  --color-destructive: #c2543f;
+  --color-destructive-foreground: #ffffff;
+  --color-border: var(--color-dark-700);
+  --color-input: var(--color-dark-600);
+  --color-ring: var(--color-accent);
+  --radius: 0.65rem;
 }
 
 body {

@@ -57,6 +57,16 @@ export default {
   filter_require_to: 'กรุณาเลือก "ถึงวันที่"',
   filter_require_from: 'กรุณาเลือก "จากวันที่"',
   filter_date_invalid: '"จากวันที่" ต้องไม่เกิน "ถึงวันที่"',
+  filter_date_range: 'ช่วงเวลา',
+  filter_pick_range: 'เลือกช่วงเวลา',
+  filter_all_time: 'ทุกช่วงเวลา',
+  gran_day: 'วัน',
+  gran_month: 'เดือน',
+  gran_year: 'ปี',
+  filter_from: 'ตั้งแต่',
+  filter_to: 'ถึง',
+  apply: 'ใช้ช่วงนี้',
+  clear: 'ล้าง',
 
   // Upload
   upload_title: 'อัปโหลดไฟล์รายงาน',

@@ -57,6 +57,16 @@ export default {
   filter_require_to: 'Please select "To Date"',
   filter_require_from: 'Please select "From Date"',
   filter_date_invalid: '"From Date" must not exceed "To Date"',
+  filter_date_range: 'Date range',
+  filter_pick_range: 'Select range',
+  filter_all_time: 'All time',
+  gran_day: 'Day',
+  gran_month: 'Month',
+  gran_year: 'Year',
+  filter_from: 'From',
+  filter_to: 'To',
+  apply: 'Apply',
+  clear: 'Clear',
 
   // Upload
   upload_title: 'Upload Report',
