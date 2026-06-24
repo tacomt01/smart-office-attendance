@@ -13,11 +13,59 @@ export interface ExportRecord {
   rawValue: string;
 }
 
+export type RankBy = 'best' | 'worst' | 'late' | 'absent' | 'missing' | 'normal' | 'early_leave';
+
 export interface ExportFilters {
   fullName?: string;
   dateFrom?: string; // YYYY-MM-DD
   dateTo?: string;   // YYYY-MM-DD
   status?: string;
+  limit?: number;    // จำกัดจำนวนคน (Top N)
+  rankBy?: RankBy;   // เรียงอันดับพนักงานตามเกณฑ์
+}
+
+/**
+ * เรียงอันดับพนักงานตามเกณฑ์ — คืน array ของชื่อเรียงจากอันดับบนสุดก่อน
+ * perPerson: { ชื่อ: { status: จำนวนวัน } } (ไม่รวม holiday)
+ */
+export function rankEmployees(
+  perPerson: Record<string, Record<string, number>>,
+  rankBy: RankBy,
+): string[] {
+  const rows = Object.entries(perPerson).map(([name, s]) => {
+    const normal = s.normal || 0;
+    const late = s.late || 0;
+    const early = s.early_leave || 0;
+    const absent = s.absent || 0;
+    const missing = (s.missing_check_in || 0) + (s.missing_check_out || 0);
+    const bad = late + early + absent + missing; // ยิ่งมาก = ยิ่งแย่
+    return { name, normal, late, early, absent, missing, bad };
+  });
+  const byName = (a: { name: string }, b: { name: string }) => a.name.localeCompare(b.name);
+  switch (rankBy) {
+    case 'best': // เข้างานดีสุด: normal มาก→น้อย, เสมอกันดูคนที่ bad น้อยกว่า
+      rows.sort((a, b) => b.normal - a.normal || a.bad - b.bad || byName(a, b));
+      break;
+    case 'worst': // แย่สุด: bad มาก→น้อย, เสมอกันดู normal น้อยกว่า
+      rows.sort((a, b) => b.bad - a.bad || a.normal - b.normal || byName(a, b));
+      break;
+    case 'late':
+      rows.sort((a, b) => b.late - a.late || byName(a, b));
+      break;
+    case 'early_leave':
+      rows.sort((a, b) => b.early - a.early || byName(a, b));
+      break;
+    case 'absent':
+      rows.sort((a, b) => b.absent - a.absent || byName(a, b));
+      break;
+    case 'missing':
+      rows.sort((a, b) => b.missing - a.missing || byName(a, b));
+      break;
+    case 'normal':
+      rows.sort((a, b) => b.normal - a.normal || byName(a, b));
+      break;
+  }
+  return rows.map((r) => r.name);
 }
 
 // ฟอร์แมตวันที่จาก UTC parts เพื่อกัน timezone shifting (สอดคล้องกับ parser)
@@ -36,15 +84,17 @@ function toMMDD(iso: string): string {
  */
 export function buildExportMatrix(
   records: ExportRecord[],
-  opts: { allowedNames?: Set<string> } = {},
+  opts: { allowedNames?: Set<string>; orderedNames?: string[] } = {},
 ): any[][] {
-  const { allowedNames } = opts;
+  const { allowedNames, orderedNames } = opts;
+  // ถ้ามี orderedNames ใช้เป็นทั้งตัวกรองสมาชิกและลำดับแถว
+  const memberFilter = orderedNames ? new Set(orderedNames) : allowedNames;
   const dateSet = new Set<string>();
   const nameSet = new Set<string>();
   const lookup = new Map<string, string>(); // `${fullName}|${YYYY-MM-DD}` -> rawValue
 
   for (const r of records) {
-    if (allowedNames && !allowedNames.has(r.fullName)) continue;
+    if (memberFilter && !memberFilter.has(r.fullName)) continue;
     const iso = toISO(r.date);
     dateSet.add(iso);
     nameSet.add(r.fullName);
@@ -52,7 +102,10 @@ export function buildExportMatrix(
   }
 
   const dates = Array.from(dateSet).sort();
-  const employees = Array.from(nameSet).sort((a, b) => a.localeCompare(b));
+  // orderedNames → คงลำดับอันดับ (เฉพาะคนที่มีข้อมูล); ไม่งั้นเรียงตามตัวอักษร
+  const employees = orderedNames
+    ? orderedNames.filter((n) => nameSet.has(n))
+    : Array.from(nameSet).sort((a, b) => a.localeCompare(b));
 
   const aoa: any[][] = [];
   const ensureRow = (idx: number) => {
@@ -127,11 +180,39 @@ function matchMonth(message: string): number | undefined {
   return undefined;
 }
 
+// จำนวนคน (Top N): "top 10", "10 คน", "10 ราย", "อันดับ 10"
+function matchLimit(message: string): number | undefined {
+  const m =
+    message.match(/top\s*(\d+)/i) ||
+    message.match(/(\d+)\s*(?:คน|ราย)/) ||
+    message.match(/อันดับ\s*(\d+)/);
+  if (m) {
+    const n = parseInt(m[1], 10);
+    if (n > 0 && n <= 1000) return n;
+  }
+  return undefined;
+}
+
+// เกณฑ์เรียงอันดับจากคำสั่ง (best/worst หรือ status + คำว่า "บ่อยที่สุด/มากที่สุด")
+const RANK_INTENT = ['บ่อยที่สุด', 'บ่อยสุด', 'มากที่สุด', 'มากสุด', 'สูงสุด', 'เยอะที่สุด', 'top'];
+function matchRank(message: string, status?: string): RankBy | undefined {
+  if (/(ดีที่สุด|ดีไปหาแย่|ดีไปแย่|เรียงจากดี|เข้างานดีที่สุด|ขยันที่สุด|ตรงเวลาที่สุด|best)/i.test(message))
+    return 'best';
+  if (/(แย่ที่สุด|แย่ไปหาดี|แย่ไปดี|เรียงจากแย่|worst)/i.test(message)) return 'worst';
+  const lower = message.toLowerCase();
+  const rankIntent = RANK_INTENT.some((k) => message.includes(k) || lower.includes(k));
+  if (rankIntent && status) {
+    if (status === 'missing_check_in' || status === 'missing_check_out') return 'missing';
+    if (['late', 'absent', 'early_leave', 'normal'].includes(status)) return status as RankBy;
+  }
+  return undefined;
+}
+
 function stripTitle(name: string): string {
   return name.replace(/^(นาย|นางสาว|นาง|น\.ส\.|ด\.ช\.|ด\.ญ\.|mr\.?|ms\.?|mrs\.?)\s*/i, '').trim();
 }
 
-function matchEmployee(message: string, employees: string[]): string | undefined {
+export function matchEmployee(message: string, employees: string[]): string | undefined {
   // 1) ชื่อเต็มตรงตัว
   for (const e of employees) if (e && message.includes(e)) return e;
   // 2) ตัด title แล้ว match ทั้งก้อนหรือ token (ชื่อ/นามสกุล) ความยาว >= 2
@@ -207,6 +288,12 @@ export function extractExportFilters(
   const status = matchStatus(message);
   if (status) f.status = status;
 
+  const limit = matchLimit(message);
+  if (limit) f.limit = limit;
+
+  const rankBy = matchRank(message, status);
+  if (rankBy) f.rankBy = rankBy;
+
   const { dateFrom, dateTo } = matchDateRange(message, currentYear);
   if (dateFrom) f.dateFrom = dateFrom;
   if (dateTo) f.dateTo = dateTo;
@@ -225,12 +312,25 @@ const STATUS_TH: Record<string, string> = {
   holiday: 'วันหยุด',
 };
 
+const RANK_TH: Record<RankBy, string> = {
+  best: 'เรียงจากเข้างานดีที่สุดไปแย่ที่สุด',
+  worst: 'เรียงจากแย่ที่สุดไปดีที่สุด',
+  late: 'เรียงจากมาสายบ่อยที่สุด',
+  early_leave: 'เรียงจากออกก่อนบ่อยที่สุด',
+  absent: 'เรียงจากขาดงานบ่อยที่สุด',
+  missing: 'เรียงจากไม่สแกนบ่อยที่สุด',
+  normal: 'เรียงจากมาปกติมากที่สุด',
+};
+
 export function describeFilters(f: ExportFilters): string {
   const parts: string[] = [];
   if (f.fullName) parts.push(`พนักงาน **${f.fullName}**`);
   if (f.dateFrom && f.dateTo) parts.push(`ช่วง **${f.dateFrom}** ถึง **${f.dateTo}**`);
   else if (f.dateFrom) parts.push(`ตั้งแต่ **${f.dateFrom}**`);
   else if (f.dateTo) parts.push(`ถึง **${f.dateTo}**`);
-  if (f.status) parts.push(`เฉพาะสถานะ **${STATUS_TH[f.status] || f.status}**`);
+  // status จะถูกแทนที่ด้วยคำอธิบาย rank เมื่อมีการจัดอันดับด้วยสถานะนั้น
+  if (f.status && !f.rankBy) parts.push(`เฉพาะสถานะ **${STATUS_TH[f.status] || f.status}**`);
+  if (f.rankBy) parts.push(`${f.limit ? `**${f.limit} อันดับแรก** ` : ''}(${RANK_TH[f.rankBy]})`);
+  else if (f.limit) parts.push(`**${f.limit} คนแรก**`);
   return parts.join(' · ');
 }

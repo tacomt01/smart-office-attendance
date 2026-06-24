@@ -70,8 +70,8 @@ const AI_CATALOG = [
   ] },
 ];
 
-const provider = ref(localStorage.getItem('ai_provider') || 'claude');
-if (!AI_CATALOG.some(p => p.id === provider.value)) provider.value = 'claude';
+const provider = ref(localStorage.getItem('ai_provider') || 'gemini');
+if (!AI_CATALOG.some(p => p.id === provider.value)) provider.value = 'gemini';
 
 const currentProvider = computed(() => AI_CATALOG.find(p => p.id === provider.value));
 const currentModels = computed(() => currentProvider.value?.models || []);
@@ -111,8 +111,9 @@ function renderMd(text: string) {
   return marked.parse(text, { breaks: true, async: false }) as string;
 }
 
-// ── Multi-session chat history (localStorage) ──
-const SESSIONS_KEY = 'chat_sessions';
+// ── Multi-session chat history (localStorage, แยกตาม user) ──
+// key ผูกกับ user id เพื่อไม่ให้ประวัติแชทของแต่ละคนปนกันบน browser เดียวกัน
+const sessionsKey = () => `chat_sessions:${auth.user?.id || 'anon'}`;
 const MAX_AGE = 24 * 60 * 60 * 1000;
 const sessions = ref<ChatSession[]>([]);
 const activeSessionId = ref<string | null>(null);
@@ -121,7 +122,7 @@ const sidebarOpen = ref(false);
 
 function loadSessions(): ChatSession[] {
   try {
-    const raw = localStorage.getItem(SESSIONS_KEY);
+    const raw = localStorage.getItem(sessionsKey());
     if (!raw) return [];
     const parsed = JSON.parse(raw) as ChatSession[];
     if (!Array.isArray(parsed)) return [];
@@ -132,7 +133,7 @@ function loadSessions(): ChatSession[] {
 }
 
 function persistSessions() {
-  localStorage.setItem(SESSIONS_KEY, JSON.stringify(sessions.value));
+  localStorage.setItem(sessionsKey(), JSON.stringify(sessions.value));
 }
 
 function pruneSessions() {
@@ -216,7 +217,7 @@ function openSession(s: ChatSession) {
 function clearAllSessions() {
   if (!window.confirm(t('chat_clear_confirm'))) return;
   sessions.value = [];
-  localStorage.removeItem(SESSIONS_KEY);
+  localStorage.removeItem(sessionsKey());
   startNewChat();
 }
 
