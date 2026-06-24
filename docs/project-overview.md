@@ -122,10 +122,12 @@ frontend/src/
 - Pie (สัดส่วน %), Bar (จำนวนวันต่อสถานะ), Line (แนวโน้มจำนวนคนต่อวัน), ตารางสรุปรายบุคคล (sort ได้)
 
 ### 🤖 AI Chat
-- 3 provider × หลาย model (Claude: Haiku/Sonnet/Opus · Gemini: 3.5 Flash/2.5 Pro/2.5 Flash · Groq: Llama 3.3 70B/3.1 8B/Llama 4 Scout)
-- Multi-turn จริง (ส่งประวัติเป็น native turns), chat history หลาย session (localStorage 24 ชม.)
-- **Token optimization:** ส่งเฉพาะสถิติสรุปรายบุคคล ไม่ส่ง log ดิบ
-- **🆕 Filtered export:** พิมพ์ `export`/`ส่งออก`/`ดาวน์โหลด` + เงื่อนไข (ชื่อ/เดือน/ปี/สถานะ) → ระบบดึง filter อัตโนมัติ (rule-based) แล้วสร้างปุ่มดาวน์โหลด Excel ที่กรองแล้ว
+- 3 provider × หลาย model (Claude: Haiku/Sonnet/Opus · Gemini: 3.5 Flash/2.5 Pro/2.5 Flash · Groq: Llama 3.3 70B/3.1 8B/Llama 4 Scout) — **default = Gemini** (เสถียรกับภาษาไทย)
+- Multi-turn จริง (ส่งประวัติเป็น native turns), **chat history แยกตาม user** (`chat_sessions:<userId>`, localStorage 24 ชม.)
+- **Claude graceful fallback (Phase 10):** SDK spawn บน Windows ทำให้ภาษาไทยเพี้ยน → `callClaude` คืน `null` (Windows+ไทย/timeout/ล้มเหลว) แล้ว fallback ไป Gemini→Groq อัตโนมัติ → ตอบได้เสมอ
+- **Role scoping (Phase 10):** employee ถามได้เฉพาะข้อมูลตัวเอง (กรอง `fullName`), ถามถึงคนอื่น → ปฏิเสธ, สั่ง export ไม่ได้
+- **Token optimization:** ส่งเฉพาะสถิติสรุปรายบุคคล + อันดับ best/worst ที่คำนวณไว้ ไม่ส่ง log ดิบ
+- **Filtered export (admin):** พิมพ์ `export`/`ส่งออก`/`ดาวน์โหลด` + เงื่อนไข (ชื่อ/เดือน/ปี/สถานะ/**Top N/จัดอันดับ**) → ระบบดึง filter อัตโนมัติ (rule-based) แล้วสร้างปุ่มดาวน์โหลด Excel ที่กรอง+เรียงแล้ว
 
 ### 🗄️ Data Management (Admin)
 - ตาราง records + filter (ชื่อ/วันที่/**สถานะ 7 แบบ**) + pagination
@@ -136,7 +138,7 @@ frontend/src/
 - CRUD ผู้ใช้ + avatar, แก้โปรไฟล์/เปลี่ยนรหัสผ่าน/อัปโหลด avatar (JPG/PNG/GIF/WebP, ≤ 5MB)
 
 ### 🎨 UX
-- Dark / Medium / Light theme (CSS variables), TH/EN i18n, Responsive (hamburger, ตารางเลื่อน)
+- **Soft Luxury Minimalist (Phase 9 — Cool Pearl + Dusty Blue):** 3 ธีม light (พื้นมุก, default) / medium / dark (soft-ink), หัวข้อ serif (Cormorant Garamond) + เนื้อหา Inter (CSS variables), TH/EN i18n, Responsive (hamburger, ตารางเลื่อน)
 
 ---
 
@@ -151,7 +153,7 @@ frontend/src/
 | GET/POST/PUT/DELETE | `/api/users` | admin | จัดการผู้ใช้ |
 | GET/PUT/POST | `/api/profile` `/profile/avatar` | auth | โปรไฟล์/avatar |
 | GET | `/api/data/{overview,records,count}` | admin | ดูข้อมูล |
-| GET | `/api/data/export?fullName&dateFrom&dateTo&status` | admin | **Export Matrix (รองรับ filter)** |
+| GET | `/api/data/export?fullName&dateFrom&dateTo&status&limit&rankBy` | admin | **Export Matrix (filter + Top N + จัดอันดับ)** |
 | DELETE | `/api/data/records` `/data/all` | admin | ลบข้อมูล |
 
 ---
