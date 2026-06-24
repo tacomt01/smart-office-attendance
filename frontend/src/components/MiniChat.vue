@@ -39,8 +39,8 @@ const AI_CATALOG = [
   ] },
 ];
 
-const provider = ref(localStorage.getItem('ai_provider') || 'claude');
-if (!AI_CATALOG.some(p => p.id === provider.value)) provider.value = 'claude';
+const provider = ref(localStorage.getItem('ai_provider') || 'gemini');
+if (!AI_CATALOG.some(p => p.id === provider.value)) provider.value = 'gemini';
 const currentModels = computed(() => AI_CATALOG.find(p => p.id === provider.value)?.models || []);
 const model = ref(localStorage.getItem('ai_model') || '');
 if (!currentModels.value.some(m => m.id === model.value)) model.value = currentModels.value[0]?.id || '';

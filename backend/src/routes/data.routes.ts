@@ -1,12 +1,28 @@
 import { Router, Request, Response } from 'express';
 import { authenticate, requireRole } from '../middleware/auth.js';
 import { prisma } from '../config/database.js';
-import { buildExportMatrix } from '../services/export.service.js';
+import { buildExportMatrix, rankEmployees, type RankBy } from '../services/export.service.js';
 import XLSX from 'xlsx';
 
 const router = Router();
 
 const adminOnly = [authenticate, requireRole('admin')];
+
+const VALID_RANK: RankBy[] = ['best', 'worst', 'late', 'absent', 'missing', 'normal', 'early_leave'];
+
+// สร้าง { ชื่อ: { status: จำนวนวัน } } จาก attendanceLog (ไม่รวม holiday) ตาม where
+async function getPerPerson(baseWhere: any): Promise<Record<string, Record<string, number>>> {
+  const rows = await prisma.attendanceLog.groupBy({
+    by: ['fullName', 'status'],
+    where: { ...baseWhere, status: { not: 'holiday' } },
+    _count: { status: true },
+  });
+  const pp: Record<string, Record<string, number>> = {};
+  for (const r of rows) {
+    (pp[r.fullName] ??= {})[r.status] = r._count.status;
+  }
+  return pp;
+}
 
 function buildWhere(query: { fullName?: string; dateFrom?: string; dateTo?: string; status?: string }) {
   const where: any = {};
@@ -135,20 +151,40 @@ router.delete('/all', ...adminOnly, async (req: Request, res: Response) => {
 // filter สถานะ: เลือก "พนักงาน" ที่มีสถานะนั้น แล้ว export ทั้งแถว (คงรูปแบบ re-uploadable)
 router.get('/export', ...adminOnly, async (req: Request, res: Response) => {
   try {
-    const q = req.query as { fullName?: string; dateFrom?: string; dateTo?: string; status?: string };
+    const q = req.query as {
+      fullName?: string; dateFrom?: string; dateTo?: string; status?: string;
+      limit?: string; rankBy?: string;
+    };
 
     // baseWhere = fullName + ช่วงวันที่ (ไม่รวม status) เพื่อดึงทุก cell ของพนักงานที่เกี่ยว
     const baseWhere = buildWhere({ fullName: q.fullName, dateFrom: q.dateFrom, dateTo: q.dateTo });
 
-    // ถ้ามี status: หาเซ็ตพนักงานที่มีสถานะนั้น (ภายใต้ filter เดียวกัน) แล้ว export เฉพาะคนเหล่านั้นทั้งแถว
+    const limit = parseInt(q.limit || '', 10);
+    const rankBy = VALID_RANK.includes(q.rankBy as RankBy) ? (q.rankBy as RankBy) : undefined;
+
     let allowedNames: Set<string> | undefined;
-    if (q.status) {
+    let orderedNames: string[] | undefined;
+
+    if (rankBy) {
+      // จัดอันดับพนักงานตามเกณฑ์ → เรียง + จำกัด Top N (export ทั้งแถวเพื่อ re-upload ได้)
+      const perPerson = await getPerPerson(baseWhere);
+      let ranked = rankEmployees(perPerson, rankBy);
+      if (limit > 0) ranked = ranked.slice(0, limit);
+      orderedNames = ranked;
+    } else if (q.status) {
+      // มี status: หาเซ็ตพนักงานที่มีสถานะนั้น แล้ว export เฉพาะคนเหล่านั้นทั้งแถว
       const matched = await prisma.attendanceLog.findMany({
         where: { ...baseWhere, status: q.status },
         distinct: ['fullName'],
         select: { fullName: true },
       });
-      allowedNames = new Set(matched.map((m) => m.fullName));
+      let names = matched.map((m) => m.fullName);
+      if (limit > 0) names = names.slice(0, limit);
+      allowedNames = new Set(names);
+    } else if (limit > 0) {
+      // limit อย่างเดียว → เอา N คนแรก (เรียงตามตัวอักษร)
+      const perPerson = await getPerPerson(baseWhere);
+      orderedNames = Object.keys(perPerson).sort((a, b) => a.localeCompare(b)).slice(0, limit);
     }
 
     const records = await prisma.attendanceLog.findMany({
@@ -156,7 +192,7 @@ router.get('/export', ...adminOnly, async (req: Request, res: Response) => {
       select: { fullName: true, date: true, rawValue: true },
     });
 
-    const aoa = buildExportMatrix(records, { allowedNames });
+    const aoa = buildExportMatrix(records, { allowedNames, orderedNames });
 
     const ws = XLSX.utils.aoa_to_sheet(aoa);
     const wb = XLSX.utils.book_new();

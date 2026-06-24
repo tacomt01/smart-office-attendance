@@ -1,6 +1,15 @@
 import { prisma } from '../config/database.js';
-import { extractExportFilters, describeFilters, type ExportFilters } from './export.service.js';
+import {
+  extractExportFilters,
+  describeFilters,
+  rankEmployees,
+  matchEmployee,
+  type ExportFilters,
+} from './export.service.js';
 import type { SDKUserMessage } from '@anthropic-ai/claude-agent-sdk';
+
+// มีอักขระไทยไหม (ใช้ตัดสินใจ fallback ของ Claude บน Windows ที่ stdin เพี้ยนเป็น "?")
+const hasThai = (s: string) => /[฀-๿]/.test(s);
 
 // ── AI provider config (ทั้งหมดมาจาก .env เพื่อสลับ provider/model ได้โดยไม่ต้องแก้โค้ด) ──
 // AI_PROVIDER: 'gemini' (default) | 'groq' | 'claude'
@@ -76,12 +85,27 @@ async function getAggregatedData(fullName?: string) {
     .sort((a, b) => b.absent - a.absent)
     .slice(0, 5);
 
+  // อันดับที่คำนวณไว้ล่วงหน้า (ช่วยให้ LLM ตอบ "ดี/แย่ที่สุด N คน" แม่นขึ้น โดยไม่ต้องคำนวณเอง)
+  const fmt = (name: string) => {
+    const s = summary[name] || {};
+    const missing = (s.missing_check_in || 0) + (s.missing_check_out || 0);
+    return `${name} (ปกติ ${s.normal || 0}, สาย ${s.late || 0}, ออกก่อน ${s.early_leave || 0}, ขาด ${s.absent || 0}, ไม่สแกน ${missing})`;
+  };
+  const rankings =
+    Object.keys(summary).length > 1
+      ? {
+          best: rankEmployees(summary, 'best').slice(0, 10).map(fmt),
+          worst: rankEmployees(summary, 'worst').slice(0, 10).map(fmt),
+        }
+      : null;
+
   return {
     totalStats,
     employeeCount: Object.keys(summary).length,
     top5Late,
     top5Missing,
     top5Absent,
+    rankings,
     perPerson: summary,
   };
 }
@@ -102,16 +126,28 @@ function buildHistorySection(history?: ChatHistoryTurn[]): string {
 function buildContext(
   data: Awaited<ReturnType<typeof getAggregatedData>>,
   userMessage: string,
+  scopeNote = '',
   historyText = '',
 ) {
-  return `## ข้อมูลสถิติการเข้างาน (พนักงานทั้งหมด ${data.employeeCount} คน)
+  const rankingSection = data.rankings
+    ? `## อันดับที่คำนวณไว้แล้ว (ใช้ตอบ "ดี/แย่ที่สุด N คน" ได้ทันที)
+อันดับเข้างานดีที่สุด (บนสุด = ดีสุด):
+${data.rankings.best.map((l, i) => `${i + 1}. ${l}`).join('\n')}
 
+อันดับเข้างานแย่ที่สุด (บนสุด = แย่สุด):
+${data.rankings.worst.map((l, i) => `${i + 1}. ${l}`).join('\n')}
+
+`
+    : '';
+
+  return `## ข้อมูลสถิติการเข้างาน (พนักงานทั้งหมด ${data.employeeCount} คน)
+${scopeNote}
 สถิติรวมทุกคน (จำนวนวัน): ${JSON.stringify(data.totalStats)}
 
 ## ข้อมูลแยกรายบุคคลทุกคน (ชื่อ: {สถานะ: จำนวนวัน})
 ${JSON.stringify(data.perPerson)}
 
-${historyText}## คำถาม
+${rankingSection}${historyText}## คำถาม
 ${userMessage}
 
 กรุณาตอบคำถามข้างต้นโดยอ้างอิงจากข้อมูลที่ให้มาเท่านั้น`;
@@ -155,6 +191,37 @@ export async function chat(
   // ตรวจจับเจตนา export ก่อนเรียก LLM — ถ้าเป็น admin ตอบกลับทันทีโดยไม่เปลือง token
   const lowered = userMessage.toLowerCase();
   const wantsExport = EXPORT_KEYWORDS.some((kw) => lowered.includes(kw.toLowerCase()));
+  const isEmployee = isAdmin !== true;
+
+  // ── ข้อจำกัดสิทธิ์ของ employee (ตรวจก่อนเรียก LLM) ──
+  let scopeNote = '';
+  if (isEmployee) {
+    if (!fullName) {
+      return {
+        reply:
+          'บัญชีของคุณยังไม่ได้ผูกกับชื่อพนักงานในระบบ จึงยังดูข้อมูลการเข้างานไม่ได้ กรุณาติดต่อผู้ดูแลระบบครับ',
+      };
+    }
+    if (wantsExport) {
+      return {
+        reply:
+          'ขออภัยครับ คุณไม่มีสิทธิ์สั่งส่งออก (export) ข้อมูล — เฉพาะผู้ดูแลระบบเท่านั้น แต่ผมช่วยสรุป/วิเคราะห์ข้อมูลการเข้างานของคุณได้นะครับ 😊',
+      };
+    }
+    // ถามถึงพนักงานคนอื่น → ปฏิเสธ (rule-based, ไม่เรียก LLM)
+    const employees = await prisma.employee.findMany({ select: { fullName: true } });
+    const others = employees
+      .map((e) => e.fullName)
+      .filter((n): n is string => !!n && n !== fullName);
+    const mentioned = matchEmployee(userMessage, others);
+    if (mentioned) {
+      return {
+        reply: `ขออภัยครับ คุณไม่มีสิทธิ์เข้าถึงข้อมูลการเข้างานของพนักงานคนอื่น ดูได้เฉพาะข้อมูลของคุณ (**${fullName}**) เท่านั้นครับ`,
+      };
+    }
+    scopeNote = `> หมายเหตุ: ผู้ใช้นี้เป็นพนักงานทั่วไป เห็นเฉพาะข้อมูลการเข้างานของตนเอง (ชื่อ ${fullName}) เท่านั้น`;
+  }
+
   if (wantsExport && isAdmin === true) {
     // ดึง filter จากคำสั่ง (ชื่อพนักงาน / เดือน-ปี / สถานะ) แบบ rule-based
     const employees = await prisma.employee.findMany({ select: { fullName: true } });
@@ -172,7 +239,7 @@ export async function chat(
   const data = await getAggregatedData(fullName);
   const prior = priorHistory(history, userMessage);
   // Gemini/Groq รับประวัติเป็น native turns แยก จึงส่ง context ที่ไม่มีประวัติฝังในข้อความ
-  const contextMessage = buildContext(data, userMessage);
+  const contextMessage = buildContext(data, userMessage, scopeNote);
 
   // override จาก request (UI) ถ้าไม่ถูกต้องใช้ค่า default จาก env
   const p = (provider || '').toLowerCase();
@@ -180,9 +247,12 @@ export async function chat(
   const m = typeof model === 'string' && model.length > 0 && model.length <= 100 ? model : undefined;
 
   if (selected === 'claude') {
-    // Claude (SDK streaming input = user-message stream) → ฝังประวัติเป็นข้อความ
-    const claudeContext = buildContext(data, userMessage, buildHistorySection(prior));
-    return callClaude(claudeContext, m);
+    // Claude (SDK streaming input) → ฝังประวัติเป็นข้อความ
+    const claudeContext = buildContext(data, userMessage, scopeNote, buildHistorySection(prior));
+    const c = await callClaude(claudeContext, m, userMessage);
+    if (c) return c;
+    // Claude ใช้ไม่ได้ (timeout/ล้มเหลว/ภาษาไทยบน Windows) → fallback ไป Gemini เพื่อให้ตอบได้เสมอ
+    return callGemini(contextMessage, undefined, prior);
   }
 
   if (selected === 'groq') {
@@ -283,11 +353,20 @@ async function callGroq(contextMessage: string, apiKey: string, model?: string, 
 // Claude ผ่าน Agent SDK — auth จาก env อัตโนมัติ:
 //   CLAUDE_CODE_OAUTH_TOKEN (subscription, local) หรือ ANTHROPIC_API_KEY (server)
 // settingSources: [] = isolation ไม่โหลด CLAUDE.md/settings ของโปรเจกต์, tools: [] = วิเคราะห์ text ล้วน
-async function callClaude(contextMessage: string, model?: string) {
+// คืน ChatResult ถ้าสำเร็จ, คืน null ถ้าใช้ไม่ได้ (ให้ caller fallback ไป Gemini/Groq)
+async function callClaude(
+  contextMessage: string,
+  model?: string,
+  rawMessage = '',
+): Promise<ChatResult | null> {
+  // Windows: claude-agent-sdk spawn subprocess ทำให้ภาษาไทยใน stdin เพี้ยนเป็น "?" (codepage)
+  // → Claude อ่านคำถามไทยไม่ออก ตอบมั่ว จึง fallback ไป Gemini แทนเมื่อคำถามมีภาษาไทย
+  if (process.platform === 'win32' && hasThai(rawMessage)) {
+    console.warn('Claude: ภาษาไทยบน Windows เพี้ยนผ่าน SDK stdin → fallback ไป Gemini');
+    return null;
+  }
   try {
     const { query } = await import('@anthropic-ai/claude-agent-sdk');
-    // ส่ง prompt แบบ streaming (JSON ผ่าน stdin = UTF-8) แทน string เดี่ยว
-    // เพื่อกันภาษาไทยเพี้ยนเป็น "?" ตอน spawn subprocess บน Windows (codepage)
     async function* promptStream(): AsyncGenerator<SDKUserMessage> {
       yield {
         type: 'user',
@@ -307,19 +386,24 @@ async function callClaude(contextMessage: string, model?: string) {
       },
     });
 
-    let reply = '';
-    for await (const message of response) {
-      if (message.type === 'result') {
-        reply = message.subtype === 'success' ? message.result : '';
+    const consume = (async () => {
+      let reply = '';
+      for await (const message of response) {
+        if (message.type === 'result') {
+          reply = message.subtype === 'success' ? message.result : '';
+        }
       }
-    }
-    return { reply: reply || 'ไม่สามารถประมวลผลคำตอบได้' };
+      return reply;
+    })();
+    // timeout กันค้าง — เกิน 30s → throw → fallback
+    const timeout = new Promise<string>((_, reject) =>
+      setTimeout(() => reject(new Error('Claude timeout')), 30000),
+    );
+    const reply = await Promise.race([consume, timeout]);
+    if (!reply) return null; // ผลว่าง → fallback
+    return { reply };
   } catch (e: any) {
     console.error('Claude provider error:', e?.message);
-    return {
-      reply:
-        '⚠️ เรียก Claude ไม่สำเร็จ ตรวจสอบการ login Claude Code (รัน `claude setup-token` แล้วใส่ CLAUDE_CODE_OAUTH_TOKEN ใน .env) — รายละเอียด: ' +
-        (e?.message || 'unknown error'),
-    };
+    return null; // ล้มเหลว → fallback ไป Gemini/Groq
   }
 }
