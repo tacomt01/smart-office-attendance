@@ -17,6 +17,9 @@
     * **Gemini** — free tier (ใช้บน server) — models: Gemini 3.5 Flash, Gemini 2.5 Pro, Gemini 2.5 Flash
     * **Groq** — free tier (ใช้บน server) — models: Llama 3.3 70B (`llama-3.3-70b-versatile`), Llama 3.1 8B (`llama-3.1-8b-instant`), Llama 4 Scout (`meta-llama/llama-4-scout-17b-16e-instruct`)
     * **Multi-turn จริง:** ส่งประวัติสนทนาเป็น native turns ของแต่ละ provider (ไม่ยัดเป็น text ก้อนเดียว) เพื่อให้ตอบต่อเนื่องแม่นขึ้น
+    * **Default provider (Phase 10) = `gemini`** ฝั่ง frontend (เสถียรกับภาษาไทย) — Claude/Groq ยังเลือกได้จาก dropdown
+    * **Claude graceful fallback (Phase 10):** `claude-agent-sdk` spawn subprocess บน **Windows** ทำให้ภาษาไทยใน stdin เพี้ยนเป็น `?` — `callClaude` จึงตรวจ Windows+ภาษาไทย / timeout 30s / ล้มเหลว แล้ว **คืน `null` → chat() fallback ไป Gemini→Groq อัตโนมัติ** เพื่อให้ตอบได้เสมอ (ไม่โยน error ดิบ)
+    * **คุณภาพคำตอบ (Phase 10):** ฉีด "อันดับ best/worst ที่คำนวณไว้แล้ว" (`rankEmployees`) เข้า context ให้ LLM ตอบ "ดี/แย่ที่สุด N คน" แม่นขึ้น
     * ⚠️ **ห้ามตั้ง `ANTHROPIC_API_KEY` ที่ใดเลย** เพื่อคุมค่าใช้จ่าย (Server ใช้ Gemini/Groq เท่านั้น)
 
 ### ⚙️ Environment Variables Reference (`backend/.env`)
@@ -44,6 +47,7 @@
 * **Roles:** แบ่งสิทธิ์ผู้ใช้งานเป็น 2 กลุ่ม:
     * `admin`: มีสิทธิ์เข้าถึงหน้าอัปโหลดไฟล์ จัดการข้อมูล และดูแดชบอร์ดภาพรวมบริษัทได้ทั้งหมด
     * `employee`: ดูแดชบอร์ดสถิติและแชทถามข้อมูลเฉพาะส่วนของตนเองได้เท่านั้น
+        * **บังคับใช้จริงในแชท (Phase 10):** ถามข้อมูลของตัวเองได้ (กรองด้วย `fullName`), หากถามถึง **พนักงานคนอื่น** ระบบตอบ "ไม่มีสิทธิ์เข้าถึง...", และ **สั่ง AI export ไม่ได้** (เฉพาะ admin) — guard เป็น rule-based ใน `chat.service.ts` ก่อนเรียก LLM
 
 ## 📊 Upload File Specification
 ⚠️ **CRITICAL RULE:** ระบบต้องรองรับการอัปโหลดไฟล์ในรูปแบบ **Excel (`.xls`, `.xlsx`) หรือแปลงมาเป็น `.csv` ที่มาจากรายงาน Daily Attendance แบบ Matrix แนวนอนตามโครงสร้างตัวอย่างนี้เท่านั้น** ห้ามเขียนโค้ดเผื่อกรณีรูปแบบไฟล์ (Format) อื่น ๆ เพื่อประหยัดพื้นที่โค้ดและลดความซับซ้อน
@@ -111,13 +115,14 @@
     * **System Prompt:** บังคับให้ AI ตอบกลับด้วยภาษาไทยที่สุภาพ อ่านง่าย และสรุปตัวเลขสถิติอย่างแม่นยำ ห้ามจินตนาการตัวเลขที่ไม่มีจริงในระบบเด็ดขาด
     * **AI/Model Switching:** มี dropdown 2 ตัว (AI = provider, Model = model ของ provider นั้น) ส่ง provider+model ไปกับทุก request และจำค่าใน `localStorage`
     * **Multi-turn memory:** ส่งประวัติสนทนาล่าสุดไปกับแต่ละ request เพื่อให้ตอบต่อเนื่อง
-    * **Chat history (client-side):** เก็บหลาย session ใน `localStorage` — New chat / Search / Clear, เปิดแชทใหม่อัตโนมัติเมื่อกลับเข้ามา, เก็บ 24 ชั่วโมง
-    * **AI-triggered Export (กรองได้):** เมื่อ admin พิมพ์ `export` / `ส่งออก` / `ดาวน์โหลด` พร้อมเงื่อนไข ระบบดึง filter จากคำสั่งแบบ rule-based (`extractExportFilters` ใน `export.service.ts`) — รองรับ **พนักงาน / เดือน-ปี (ไทย-อังกฤษ, พ.ศ./ค.ศ.) / สถานะ** แล้วส่ง filter ไปกับปุ่ม Download
+    * **Chat history (client-side, แยกตาม user — Phase 10):** เก็บหลาย session ใน `localStorage` ภายใต้ key `chat_sessions:<userId>` (แต่ละคนเห็นเฉพาะของตัวเอง ไม่ปนกันบน browser เดียว) — New chat / Search / Clear, เปิดแชทใหม่อัตโนมัติเมื่อกลับเข้ามา, เก็บ 24 ชั่วโมง
+    * **AI-triggered Export (กรองได้, admin เท่านั้น):** เมื่อ admin พิมพ์ `export` / `ส่งออก` / `ดาวน์โหลด` พร้อมเงื่อนไข ระบบดึง filter จากคำสั่งแบบ rule-based (`extractExportFilters` ใน `export.service.ts`) — รองรับ **พนักงาน / เดือน-ปี (ไทย-อังกฤษ, พ.ศ./ค.ศ.) / สถานะ / Top N (limit) / การจัดอันดับ (rankBy: ดี-แย่ที่สุด, มาสาย/ขาด/ไม่สแกนบ่อยที่สุด)** แล้วส่ง filter ไปกับปุ่ม Download
     * **Welcome message** เป็นภาษาไทยเสมอ
 
 > 📌 **หมายเหตุระบบ (Phase 5–6):**
 > * **Export = Matrix ที่อัปโหลดซ้ำได้:** ไฟล์ Export Excel เป็น Matrix แนวนอน (พนักงาน = แถว, วันที่ `MM/DD` = คอลัมน์, raw value ในเซลล์) ตรงตามไฟล์ต้นฉบับ จึงนำกลับมาอัปโหลดได้ทันที (round-trip)
 > * **Export filter (Phase 8):** `/api/data/export` รับ `fullName / dateFrom / dateTo / status` — กรณีกรอง `status` จะเลือก **พนักงานที่มีสถานะนั้น** แล้วส่งออก **ทั้งแถว** (ไม่เจาะเฉพาะ cell) เพื่อคงรูปแบบ re-uploadable; logic สร้าง matrix อยู่ใน `export.service.ts` (`buildExportMatrix`)
+> * **Export ranking/limit (Phase 10):** `/api/data/export` รับเพิ่ม `limit` (Top N) + `rankBy` (`best/worst/late/absent/missing/normal/early_leave`) — `rankEmployees()` จัดอันดับพนักงานแล้ว `buildExportMatrix({ orderedNames })` ส่งออกตามลำดับ + จำกัดจำนวน (เช่น "10 คนมาสายบ่อยที่สุด" = 10 แถวเรียงตามสาย)
 > * **Responsive ทุกหน้า:** รองรับ mobile/tablet/desktop — nav มี hamburger, ตารางกว้างเลื่อน/ซ่อนคอลัมน์บนมือถือ, filter bar stack
 
 ## 📁 Documentation Policy

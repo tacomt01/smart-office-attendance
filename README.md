@@ -24,7 +24,7 @@
 | Vue 3 | 3.5+ | Composition API, SFC |
 | TypeScript | 6.0 | Type safety |
 | Vite | 8.0 | Build tool & dev server |
-| Tailwind CSS | 4.3 | Utility-first CSS (Premium Dark Mode) |
+| Tailwind CSS | 4.3 | Utility-first CSS (Soft Luxury Minimalist — Cool Pearl + Dusty Blue) |
 | Pinia | 3.0 | State management |
 | Vue Router | 4.x | SPA routing |
 | Chart.js + vue-chartjs | 4.5 / 5.3 | กราฟ Doughnut, Bar, Line |
@@ -53,8 +53,9 @@
 | **Gemini** | Gemini 3.5 Flash, **Gemini 2.5 Pro**, **Gemini 2.5 Flash** | `gemini-3.5-flash` | ฟรี (free tier) | ใช้บน server ได้ |
 | **Groq** | **Llama 3.3 70B**, **Llama 3.1 8B**, Llama 4 Scout | `llama-3.3-70b-versatile` | ฟรี (free tier) | ใช้บน server ได้ |
 
-> 💡 หน้า Chat มี selector 2 ส่วน (**AI** = provider แบบปุ่ม segmented, **Model** = dropdown ของ provider นั้น) สลับได้ทันที ค่าจะถูกส่งไปกับทุก request และจำไว้ใน localStorage
+> 💡 หน้า Chat มี selector 2 ส่วน (**AI** = provider แบบปุ่ม segmented, **Model** = dropdown ของ provider นั้น) สลับได้ทันที ค่าจะถูกส่งไปกับทุก request และจำไว้ใน localStorage — **ค่าเริ่มต้น = Gemini**
 > 🔁 ทุก provider รองรับ **multi-turn จริง** — ส่งประวัติสนทนาเป็น native turns ของแต่ละ provider ทำให้ตอบต่อเนื่องแม่นขึ้น
+> 🛟 **Claude บน Windows:** SDK spawn subprocess ทำให้ภาษาไทยเพี้ยน ระบบจึง **fallback ไป Gemini/Groq อัตโนมัติ** เมื่อ Claude ใช้ไม่ได้ (ตอบได้เสมอ)
 > ⚠️ ระบบ **ไม่ใช้ `ANTHROPIC_API_KEY`** ที่ใดเลย เพื่อคุมค่าใช้จ่าย (ไม่ต้องมี API key แบบเสียเงิน)
 
 ---
@@ -178,13 +179,15 @@ npm run test:watch  # โหมด watch
 
 ### 4. 🤖 AI Chat — วิเคราะห์ข้อมูล
 - พิมพ์คำถามเป็นภาษาไทยหรืออังกฤษ
-- ตัวอย่าง: "ใครมาสายบ่อยที่สุด?", "สรุปภาพรวมการเข้างาน"
+- ตัวอย่าง: "ใครมาสายบ่อยที่สุด?", "เลือก 3 คนที่มาทำงานดีที่สุด แสดงเป็นตาราง"
 - AI จะตอบโดยอ้างอิงจากข้อมูลจริงในระบบ (จำบริบทการสนทนาก่อนหน้าได้ — multi-turn)
-- **สลับ AI/Model:** ใช้ dropdown 2 ตัวบน header (AI = Claude/Gemini/Groq, Model = ของ provider นั้น) ค่าจะถูกจำไว้
-- **Export ผ่านแชทแบบกรองได้ (Admin):** พิมพ์ `export` / `ส่งออก` / `ดาวน์โหลด` พร้อมเงื่อนไข แล้วปุ่ม Download จะปรากฏในห้องแชท ระบบดึงตัวกรองจากคำสั่งให้อัตโนมัติ (rule-based)
-  - ตัวอย่าง: `export ของ สมชาย เดือนมิถุนายน เฉพาะคนมาสาย` → รองรับ **พนักงาน / เดือน-ปี (ไทย-อังกฤษ, พ.ศ./ค.ศ.) / สถานะ**
-  - กรองสถานะ = เลือกพนักงานที่มีสถานะนั้น แล้วส่งออก **ทั้งแถว** → ไฟล์ยังเป็น Matrix ที่ re-upload ได้
-- **ประวัติแชท (Chat History):** เก็บหลาย session ในเครื่อง (localStorage) — เริ่มแชทใหม่ (New), ค้นหา (Search), ล้าง (Clear); เปิดแชทใหม่อัตโนมัติเมื่อกลับเข้ามา และเก็บประวัติ 24 ชั่วโมง
+- **สลับ AI/Model:** ใช้ dropdown 2 ตัวบน header (AI = Claude/Gemini/Groq, Model = ของ provider นั้น) ค่าจะถูกจำไว้ — เลือก Claude ได้ ถ้าใช้ไม่ได้จะ fallback ไป Gemini ให้อัตโนมัติ
+- **สิทธิ์ตาม role:** `admin` ถามได้ทั้งบริษัท · `employee` ถามได้เฉพาะข้อมูลของตัวเอง (ถามถึงคนอื่นจะถูกปฏิเสธ และสั่ง export ไม่ได้)
+- **Export ผ่านแชทแบบกรองได้ (Admin):** พิมพ์ `export` / `ส่งออก` / `ดาวน์โหลด` พร้อมเงื่อนไข แล้วปุ่ม Download จะปรากฏในห้องแชท ระบบดึงตัวกรองให้อัตโนมัติ (rule-based)
+  - รองรับ **พนักงาน / เดือน-ปี (ไทย-อังกฤษ, พ.ศ./ค.ศ.) / สถานะ / Top N / การจัดอันดับ**
+  - ตัวอย่าง: `export 10 คนที่มาสายบ่อยที่สุด` (ได้ 10 คนเรียงตามสาย) · `export เรียงจากเข้างานดีที่สุดไปแย่ที่สุด` · `export ของ สมชาย เดือนมิถุนายน`
+  - ไฟล์ยังเป็น Matrix ที่ re-upload ได้เสมอ
+- **ประวัติแชท (Chat History):** เก็บหลาย session ในเครื่อง **แยกตาม user** — เริ่มแชทใหม่ (New) / ค้นหา (Search) / ล้าง (Clear); เก็บประวัติ 24 ชั่วโมง (สลับ user แล้วประวัติไม่ปนกัน)
 - กดปุ่ม Copy บน message ของ AI เพื่อคัดลอกข้อความ
 
 > ต้องตั้งค่า key ของ provider ที่เลือกใน `.env` (Gemini/Groq) หรือใช้ Claude ฟรีบน local ด้วย `claude setup-token`
@@ -223,11 +226,11 @@ npm run test:watch  # โหมด watch
 - กดปุ่ม **"TH"** → กลับเป็นภาษาไทย
 - ค่าจะจำไว้หลัง refresh
 
-### 9. 🎨 เปลี่ยน Theme (Dark / Medium / Light)
-- ใช้ปุ่ม 3 ไอคอนบน nav bar:
-  - ☀️ Sun = Light Mode (พื้นขาว)
-  - 🌤️ กลาง = Medium Mode (เทาเข้ม)
-  - 🌙 Moon = Dark Mode (มืด)
+### 9. 🎨 เปลี่ยน Theme (Soft Luxury — Light / Medium / Dark)
+- ใช้ปุ่ม 3 ไอคอนบน nav bar (โทน Cool Pearl + Dusty Blue):
+  - ☀️ Sun = Light (พื้นมุก — **ค่าเริ่มต้น**)
+  - 🌤️ กลาง = Medium (slate-blue กลาง)
+  - 🌙 Moon = Dark (soft-ink ไม่ใช่ดำสนิท)
 - ค่าจะจำไว้หลัง refresh
 
 ### 📱 Responsive ทุกหน้าจอ
@@ -277,6 +280,7 @@ AiProject/
 │   │       ├── parser.service.ts
 │   │       ├── auth.service.ts
 │   │       ├── dashboard.service.ts
+│   │       ├── export.service.ts  # Matrix export + filter/ranking
 │   │       └── chat.service.ts
 │   ├── prisma/schema.prisma      # Database schema
 │   ├── uploads/avatars/          # User avatars
