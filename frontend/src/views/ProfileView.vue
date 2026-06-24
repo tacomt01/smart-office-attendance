@@ -4,6 +4,7 @@ import { useAuthStore } from '../stores/auth.store';
 import api, { assetUrl } from '../services/api';
 import { UserCircleIcon, CameraIcon, KeyIcon } from '@heroicons/vue/24/outline';
 import { useI18n } from '../i18n';
+import { validateAvatarFile, AVATAR_ACCEPT } from '../utils/avatar';
 
 const { t } = useI18n();
 
@@ -33,9 +34,11 @@ onMounted(async () => {
 async function uploadAvatar(e: Event) {
   const file = (e.target as HTMLInputElement).files?.[0];
   if (!file) return;
-  if (file.size > 2 * 1024 * 1024) {
+  const errKey = validateAvatarFile(file);
+  if (errKey) {
     saveResult.value = 'error';
-    saveMessage.value = 'ไฟล์ต้องมีขนาดไม่เกิน 2 MB';
+    saveMessage.value = t(errKey);
+    (e.target as HTMLInputElement).value = '';
     return;
   }
   uploading.value = true;
@@ -129,7 +132,7 @@ function fullAvatarUrl(path: string | null): string | undefined {
         </div>
         <label class="absolute inset-0 rounded-full bg-black/50 opacity-0 group-hover:opacity-100 flex items-center justify-center cursor-pointer transition">
           <CameraIcon class="w-8 h-8 text-white" />
-          <input type="file" accept="image/*" class="hidden" @change="uploadAvatar" />
+          <input type="file" :accept="AVATAR_ACCEPT" class="hidden" @change="uploadAvatar" />
         </label>
         <div v-if="uploading" class="absolute inset-0 rounded-full bg-black/60 flex items-center justify-center">
           <div class="w-8 h-8 border-3 border-accent/30 border-t-accent rounded-full animate-spin"></div>

@@ -133,7 +133,7 @@ frontend/src/
 - Danger zone: ลบตามวันที่/พนักงาน/เลือก/ทั้งหมด (ยืนยัน)
 
 ### 👥 Users (Admin) / 👤 Profile
-- CRUD ผู้ใช้ + avatar, แก้โปรไฟล์/เปลี่ยนรหัสผ่าน/อัปโหลด avatar (≤ 2MB)
+- CRUD ผู้ใช้ + avatar, แก้โปรไฟล์/เปลี่ยนรหัสผ่าน/อัปโหลด avatar (JPG/PNG/GIF/WebP, ≤ 5MB)
 
 ### 🎨 UX
 - Dark / Medium / Light theme (CSS variables), TH/EN i18n, Responsive (hamburger, ตารางเลื่อน)

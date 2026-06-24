@@ -1,29 +1,10 @@
 import { Router, Request, Response } from 'express';
 import bcrypt from 'bcryptjs';
-import multer from 'multer';
-import path from 'node:path';
-import { fileURLToPath } from 'node:url';
 import { prisma } from '../config/database.js';
 import { authenticate, requireRole } from '../middleware/auth.js';
+import { avatarUpload } from '../middleware/avatarUpload.js';
 
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const router = Router();
-
-const storage = multer.diskStorage({
-  destination: path.resolve(__dirname, '../../uploads/avatars'),
-  filename: (_req, file, cb) => {
-    const ext = path.extname(file.originalname);
-    cb(null, `${Date.now()}-${Math.random().toString(36).slice(2)}${ext}`);
-  },
-});
-const upload = multer({
-  storage,
-  limits: { fileSize: 2 * 1024 * 1024 },
-  fileFilter: (_req, file, cb) => {
-    if (/^image\/(jpeg|png|gif|webp)$/.test(file.mimetype)) cb(null, true);
-    else cb(new Error('รองรับเฉพาะไฟล์รูปภาพ'));
-  },
-});
 
 const USER_SELECT = { id: true, email: true, role: true, fullName: true, avatar: true, createdAt: true };
 
@@ -83,7 +64,7 @@ router.put('/:id', async (req: Request, res: Response) => {
   }
 });
 
-router.post('/:id/avatar', upload.single('avatar'), async (req: Request, res: Response) => {
+router.post('/:id/avatar', avatarUpload, async (req: Request, res: Response) => {
   try {
     if (!req.file) { res.status(400).json({ error: 'กรุณาเลือกรูปภาพ' }); return; }
     const avatarUrl = `/uploads/avatars/${req.file.filename}`;

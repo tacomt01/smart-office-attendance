@@ -109,7 +109,8 @@ export default {
   users_change_password: 'Change Password',
   users_cancel_password: 'Cancel Password Change',
   users_no_data: 'No users found',
-  users_avatar_hint: 'Click to select image',
+  users_avatar_hint: 'JPG, PNG, GIF, WebP • up to 5 MB',
+  users_avatar_failed: 'Avatar upload failed',
   users_search: 'Search by email or name...',
   users_delete_title: 'Confirm Delete',
   users_delete_msg: 'Do you want to delete user',
@@ -124,12 +125,14 @@ export default {
 
   // Profile
   profile_title: 'Edit Profile',
-  profile_avatar_hint: 'Click to change (max 2 MB)',
+  profile_avatar_hint: 'JPG, PNG, GIF, WebP • up to 5 MB',
   profile_current_password: 'Current Password',
   profile_new_password: 'New Password',
   profile_confirm_password: 'Confirm New Password',
   profile_save_success: 'Saved successfully',
   profile_avatar_success: 'Profile picture updated',
+  avatar_err_type: 'Only JPG, PNG, GIF or WebP files are allowed',
+  avatar_err_size: 'File must be no larger than 5 MB',
 
   // Data Management
   data_title: 'Data Management',
