@@ -44,8 +44,8 @@ async function handleLogin() {
 </script>
 
 <template>
-  <div class="min-h-screen flex items-center justify-center overflow-hidden relative"
-    style="background: linear-gradient(135deg, #0f172a 0%, #1a1a2e 50%, #0f172a 100%); background-size: 200% 200%; animation: gradientShift 8s ease infinite;">
+  <div class="min-h-screen flex items-center justify-center overflow-hidden relative px-4"
+    style="background: linear-gradient(135deg, #eef1f6 0%, #dbe3ef 50%, #e8edf5 100%); background-size: 200% 200%; animation: gradientShift 12s ease infinite;">
 
     <div
       class="w-full max-w-md p-8 bg-dark-800/95 glass rounded-2xl shadow-2xl gradient-border animate-fadeInUp"
@@ -55,10 +55,10 @@ async function handleLogin() {
       }"
       style="transition: transform 0.5s ease, opacity 0.5s ease;"
     >
-      <h1 class="text-3xl font-bold text-center mb-2">
-        <span class="bg-gradient-to-r from-accent to-cyan-400 bg-clip-text text-transparent">Smart Office</span>
+      <h1 class="font-display text-4xl font-semibold text-center mb-2 tracking-wide">
+        <span class="bg-gradient-to-r from-accent to-accent-light bg-clip-text text-transparent">Smart Office</span>
       </h1>
-      <p class="text-center text-slate-400 mb-8">Attendance Management System</p>
+      <p class="text-center text-slate-400 mb-8 tracking-wide">Attendance Management System</p>
 
       <form @submit.prevent="handleLogin" class="space-y-6">
         <div>
@@ -97,9 +97,9 @@ async function handleLogin() {
           :disabled="phase !== 'idle'"
           class="w-full py-3 font-semibold rounded-lg flex items-center justify-center gap-2 overflow-hidden relative"
           :class="{
-            'bg-gradient-to-r from-accent to-emerald-600 hover:from-accent-light hover:to-emerald-500 text-dark-900 shadow-lg hover:shadow-accent/25 hover:-translate-y-0.5': phase === 'idle',
-            'bg-accent text-dark-900': phase === 'loading',
-            'bg-green-500 text-white shadow-lg shadow-green-500/30': phase === 'success' || phase === 'leaving',
+            'bg-gradient-to-r from-accent to-accent-light hover:from-accent-light hover:to-accent text-white shadow-lg shadow-accent/25 hover:-translate-y-0.5': phase === 'idle',
+            'bg-accent text-white': phase === 'loading',
+            'bg-[#6f9e87] text-white shadow-lg shadow-[#6f9e87]/30': phase === 'success' || phase === 'leaving',
           }"
           style="transition: all 0.4s ease;"
         >

@@ -1,26 +1,38 @@
 @import "tailwindcss";
 
+/* Soft Luxury Minimalist — Cool Pearl + Dusty Blue (default = light/pearl) */
 @theme {
-  --color-dark-900: #0f172a;
-  --color-dark-800: #1e293b;
-  --color-dark-700: #334155;
-  --color-dark-600: #475569;
-  --color-accent: #10b981;
-  --color-accent-light: #34d399;
+  --color-dark-900: #eef1f6;
+  --color-dark-800: #fbfcfe;
+  --color-dark-700: #dfe4ec;
+  --color-dark-600: #c7cedb;
+  --color-accent: #5b7196;
+  --color-accent-light: #7e93b6;
+  --font-display: 'Cormorant Garamond', 'Playfair Display', Georgia, serif;
 }
 
 body {
   @apply bg-dark-900 min-h-screen;
   font-family: 'Inter', system-ui, -apple-system, sans-serif;
-  color: var(--th-text, #f1f5f9);
+  color: var(--th-text, #2b3242);
   transition: background-color 0.3s ease, color 0.3s ease;
 }
 
+/* Serif display utility for headings / titles */
+.font-display {
+  font-family: var(--font-display);
+  letter-spacing: 0.01em;
+}
+
+/* Native date-picker icon: dark by default (good on pearl); invert on dark themes */
+[data-theme="dark"] input[type="date"]::-webkit-calendar-picker-indicator,
+[data-theme="medium"] input[type="date"]::-webkit-calendar-picker-indicator { filter: invert(1); opacity: 0.75; }
+
 [data-theme="light"] .text-slate-100,
-[data-theme="light"] .text-slate-200 { color: #1e293b !important; }
-[data-theme="light"] .text-slate-300 { color: #334155 !important; }
+[data-theme="light"] .text-slate-200 { color: #2b3242 !important; }
+[data-theme="light"] .text-slate-300 { color: #475063 !important; }
 [data-theme="light"] .text-slate-400,
-[data-theme="light"] .text-slate-500 { color: #64748b !important; }
+[data-theme="light"] .text-slate-500 { color: #76809a !important; }
 
 /* Animations */
 @keyframes fadeInUp {
@@ -70,8 +82,8 @@ body {
   100% { background-position: 0% 50%; }
 }
 @keyframes pulse-glow {
-  0%, 100% { box-shadow: 0 0 5px rgba(16, 185, 129, 0.3); }
-  50% { box-shadow: 0 0 20px rgba(16, 185, 129, 0.6); }
+  0%, 100% { box-shadow: 0 0 5px rgba(91, 113, 150, 0.25); }
+  50% { box-shadow: 0 0 20px rgba(91, 113, 150, 0.45); }
 }
 
 .animate-fadeInUp { animation: fadeInUp 0.5s ease-out both; }
@@ -102,16 +114,16 @@ body {
 .stagger > *:nth-child(5) { animation-delay: 320ms; }
 .stagger > *:nth-child(6) { animation-delay: 400ms; }
 
-/* Premium card hover */
+/* Soft luxury card hover */
 .card-hover {
   transition: all 0.3s ease;
 }
 .card-hover:hover {
   transform: translateY(-2px);
-  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 10px 30px rgba(60, 80, 120, 0.12);
 }
 
-/* Gradient border effect */
+/* Gradient border effect — dusty blue ramp */
 .gradient-border {
   position: relative;
 }
@@ -120,7 +132,7 @@ body {
   position: absolute;
   inset: -1px;
   border-radius: inherit;
-  background: linear-gradient(135deg, #10b981, #06b6d4, #8b5cf6);
+  background: linear-gradient(135deg, #7e93b6, #5b7196, #aebfdd);
   z-index: -1;
   opacity: 0.5;
 }

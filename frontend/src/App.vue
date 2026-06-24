@@ -76,41 +76,41 @@ onUnmounted(() => {
 <template>
   <div class="min-h-screen bg-dark-900">
     <!-- Navigation -->
-    <nav v-if="showNav" class="bg-dark-800 border-b border-dark-700 px-4 md:px-6 py-3 flex items-center justify-between">
-      <div class="flex items-center gap-3 md:gap-6">
+    <nav v-if="showNav" class="bg-dark-800/90 glass border-b border-dark-700 px-4 md:px-8 py-3.5 flex items-center justify-between sticky top-0 z-30">
+      <div class="flex items-center gap-3 md:gap-7">
         <button @click="mobileMenuOpen = !mobileMenuOpen"
           class="md:hidden p-1.5 rounded-lg text-slate-300 hover:text-accent hover:bg-dark-700 transition">
           <Bars3Icon class="w-6 h-6" />
         </button>
-        <router-link to="/dashboard" class="text-xl font-bold text-accent">Smart Office</router-link>
+        <router-link to="/dashboard" class="font-display text-2xl font-semibold tracking-wide text-accent">Smart Office</router-link>
         <div class="hidden md:flex items-center gap-1">
           <router-link to="/dashboard"
             class="flex items-center gap-1.5 px-3 py-2 text-sm transition-all duration-200"
-            :class="route.path === '/dashboard' ? 'text-accent border-b-2 border-accent shadow-[0_2px_10px_rgba(16,185,129,0.3)]' : 'text-slate-300 hover:text-accent border-b-2 border-transparent'">
+            :class="route.path === '/dashboard' ? 'text-accent border-b-2 border-accent shadow-[0_2px_10px_rgba(91,113,150,0.25)]' : 'text-slate-300 hover:text-accent border-b-2 border-transparent'">
             <ChartBarIcon class="w-4 h-4" />
             {{ t('nav_dashboard') }}
           </router-link>
           <router-link v-if="auth.isAdmin" to="/upload"
             class="flex items-center gap-1.5 px-3 py-2 text-sm transition-all duration-200"
-            :class="route.path === '/upload' ? 'text-accent border-b-2 border-accent shadow-[0_2px_10px_rgba(16,185,129,0.3)]' : 'text-slate-300 hover:text-accent border-b-2 border-transparent'">
+            :class="route.path === '/upload' ? 'text-accent border-b-2 border-accent shadow-[0_2px_10px_rgba(91,113,150,0.25)]' : 'text-slate-300 hover:text-accent border-b-2 border-transparent'">
             <CloudArrowUpIcon class="w-4 h-4" />
             {{ t('nav_upload') }}
           </router-link>
           <router-link to="/chat"
             class="flex items-center gap-1.5 px-3 py-2 text-sm transition-all duration-200"
-            :class="route.path === '/chat' ? 'text-accent border-b-2 border-accent shadow-[0_2px_10px_rgba(16,185,129,0.3)]' : 'text-slate-300 hover:text-accent border-b-2 border-transparent'">
+            :class="route.path === '/chat' ? 'text-accent border-b-2 border-accent shadow-[0_2px_10px_rgba(91,113,150,0.25)]' : 'text-slate-300 hover:text-accent border-b-2 border-transparent'">
             <ChatBubbleLeftRightIcon class="w-4 h-4" />
             {{ t('nav_chat') }}
           </router-link>
           <router-link v-if="auth.isAdmin" to="/data"
             class="flex items-center gap-1.5 px-3 py-2 text-sm transition-all duration-200"
-            :class="route.path === '/data' ? 'text-accent border-b-2 border-accent shadow-[0_2px_10px_rgba(16,185,129,0.3)]' : 'text-slate-300 hover:text-accent border-b-2 border-transparent'">
+            :class="route.path === '/data' ? 'text-accent border-b-2 border-accent shadow-[0_2px_10px_rgba(91,113,150,0.25)]' : 'text-slate-300 hover:text-accent border-b-2 border-transparent'">
             <CircleStackIcon class="w-4 h-4" />
             {{ t('nav_data') }}
           </router-link>
           <router-link v-if="auth.isAdmin" to="/users"
             class="flex items-center gap-1.5 px-3 py-2 text-sm transition-all duration-200"
-            :class="route.path === '/users' ? 'text-accent border-b-2 border-accent shadow-[0_2px_10px_rgba(16,185,129,0.3)]' : 'text-slate-300 hover:text-accent border-b-2 border-transparent'">
+            :class="route.path === '/users' ? 'text-accent border-b-2 border-accent shadow-[0_2px_10px_rgba(91,113,150,0.25)]' : 'text-slate-300 hover:text-accent border-b-2 border-transparent'">
             <UsersIcon class="w-4 h-4" />
             {{ t('nav_users') }}
           </router-link>
@@ -199,7 +199,7 @@ onUnmounted(() => {
     <!-- Logout Confirmation Modal -->
     <div v-if="showLogoutModal" class="fixed inset-0 bg-black/60 glass z-50 flex items-center justify-center">
       <div class="bg-dark-800 border border-dark-700 rounded-2xl p-6 w-full max-w-sm shadow-2xl animate-scaleIn">
-        <h3 class="text-lg font-bold text-slate-100 mb-2">{{ t('nav_confirm_logout') }}</h3>
+        <h3 class="font-display text-xl font-semibold text-slate-100 mb-2">{{ t('nav_confirm_logout') }}</h3>
         <p class="text-slate-400 text-sm mb-6">{{ t('nav_confirm_logout_msg') }}</p>
         <div class="flex gap-3 justify-end">
           <button @click="showLogoutModal = false"

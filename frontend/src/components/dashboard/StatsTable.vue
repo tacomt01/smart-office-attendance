@@ -42,12 +42,12 @@ const sorted = computed(() => {
 
 const columns = computed(() => [
   { key: 'fullName' as SortKey, label: t('table_name'), color: '' },
-  { key: 'normal' as SortKey, label: t('status_normal'), color: 'text-emerald-400' },
-  { key: 'late' as SortKey, label: t('status_late'), color: 'text-amber-400' },
-  { key: 'early_leave' as SortKey, label: t('status_early_leave'), color: 'text-orange-400' },
-  { key: 'missing_check_in' as SortKey, label: t('status_missing_check_in'), color: 'text-red-400' },
-  { key: 'missing_check_out' as SortKey, label: t('status_missing_check_out'), color: 'text-pink-400' },
-  { key: 'absent' as SortKey, label: t('status_absent'), color: 'text-violet-400' },
+  { key: 'normal' as SortKey, label: t('status_normal'), color: 'text-[#5e8a74]' },
+  { key: 'late' as SortKey, label: t('status_late'), color: 'text-[#b8862f]' },
+  { key: 'early_leave' as SortKey, label: t('status_early_leave'), color: 'text-[#bd7850]' },
+  { key: 'missing_check_in' as SortKey, label: t('status_missing_check_in'), color: 'text-[#c25c5f]' },
+  { key: 'missing_check_out' as SortKey, label: t('status_missing_check_out'), color: 'text-[#a86790]' },
+  { key: 'absent' as SortKey, label: t('status_absent'), color: 'text-[#767bb5]' },
 ]);
 
 function sortIcon(key: SortKey) {
@@ -62,8 +62,8 @@ function mobileVisible(key: SortKey) {
 </script>
 
 <template>
-  <div class="bg-dark-800 border border-dark-700 rounded-xl p-6 overflow-x-auto">
-    <h3 class="text-sm font-semibold text-slate-300 mb-4">{{ t('table_title') }}</h3>
+  <div class="bg-dark-800 border border-dark-700 rounded-2xl p-6 overflow-x-auto shadow-sm">
+    <h3 class="font-display text-base font-semibold text-slate-300 mb-4 tracking-wide">{{ t('table_title') }}</h3>
     <table class="w-full text-sm">
       <thead>
         <tr class="border-b border-dark-600">
@@ -80,12 +80,12 @@ function mobileVisible(key: SortKey) {
         <tr v-for="row in sorted" :key="row.fullName"
           class="border-b border-dark-700/50 hover:bg-dark-700/30 transition">
           <td class="px-3 py-2 text-slate-100 whitespace-nowrap">{{ row.fullName }}</td>
-          <td class="px-3 py-2 text-emerald-400 font-semibold">{{ row.normal }}</td>
-          <td class="hidden md:table-cell px-3 py-2 text-amber-400 font-semibold">{{ row.late }}</td>
-          <td class="hidden md:table-cell px-3 py-2 text-orange-400 font-semibold">{{ row.early_leave }}</td>
-          <td class="hidden md:table-cell px-3 py-2 text-red-400 font-semibold">{{ row.missing_check_in }}</td>
-          <td class="hidden md:table-cell px-3 py-2 text-pink-400 font-semibold">{{ row.missing_check_out }}</td>
-          <td class="hidden md:table-cell px-3 py-2 text-violet-400 font-semibold">{{ row.absent }}</td>
+          <td class="px-3 py-2 text-[#5e8a74] font-semibold">{{ row.normal }}</td>
+          <td class="hidden md:table-cell px-3 py-2 text-[#b8862f] font-semibold">{{ row.late }}</td>
+          <td class="hidden md:table-cell px-3 py-2 text-[#bd7850] font-semibold">{{ row.early_leave }}</td>
+          <td class="hidden md:table-cell px-3 py-2 text-[#c25c5f] font-semibold">{{ row.missing_check_in }}</td>
+          <td class="hidden md:table-cell px-3 py-2 text-[#a86790] font-semibold">{{ row.missing_check_out }}</td>
+          <td class="hidden md:table-cell px-3 py-2 text-[#767bb5] font-semibold">{{ row.absent }}</td>
           <td class="px-3 py-2 text-slate-300 font-semibold">
             {{ row.normal + row.late + row.early_leave + row.missing_check_in + row.missing_check_out + row.absent }}
           </td>

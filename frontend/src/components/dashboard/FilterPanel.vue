@@ -52,8 +52,8 @@ function resetFilter() {
 </script>
 
 <template>
-  <div class="bg-dark-800 border border-dark-700 rounded-xl p-4">
-    <div class="flex flex-col md:flex-row md:flex-wrap gap-2 md:gap-4 md:items-end">
+  <div class="bg-dark-800 border border-dark-700 rounded-2xl p-5 shadow-sm">
+    <div class="flex flex-col md:flex-row md:flex-wrap gap-3 md:gap-4 md:items-end">
       <div class="w-full md:flex-1 md:min-w-[180px]">
         <label class="block text-xs text-slate-400 mb-1">{{ t('filter_employee') }}</label>
         <select v-model="selectedEmployee"
@@ -92,7 +92,6 @@ function resetFilter() {
 
 <style scoped>
 input[type="date"]::-webkit-calendar-picker-indicator {
-  filter: invert(1);
   cursor: pointer;
 }
 </style>

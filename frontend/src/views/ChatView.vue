@@ -335,7 +335,7 @@ function useSuggestion(text: string) {
       <div class="p-3 space-y-2 border-b border-dark-700">
         <button
           @click="startNewChat"
-          class="w-full flex items-center justify-center gap-2 px-3 py-2 bg-gradient-to-r from-accent to-emerald-600 text-white text-sm font-semibold rounded-lg shadow-md shadow-accent/20 hover:-translate-y-0.5 transition"
+          class="w-full flex items-center justify-center gap-2 px-3 py-2 bg-gradient-to-r from-accent to-accent-light text-white text-sm font-semibold rounded-lg shadow-md shadow-accent/20 hover:-translate-y-0.5 transition"
         >
           <PlusIcon class="w-4 h-4" /> {{ t('chat_new') }}
         </button>
@@ -387,11 +387,11 @@ function useSuggestion(text: string) {
           <button @click="sidebarOpen = true" class="md:hidden p-2 rounded-lg hover:bg-dark-700 text-slate-300 flex-shrink-0">
             <Bars3Icon class="w-5 h-5" />
           </button>
-          <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-accent to-cyan-500 flex items-center justify-center shadow-lg shadow-accent/20 flex-shrink-0">
+          <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-accent to-accent-light flex items-center justify-center shadow-lg shadow-accent/20 flex-shrink-0">
             <SparklesIcon class="w-5 h-5 text-white" />
           </div>
           <div class="mr-auto">
-            <h1 class="text-lg font-bold text-slate-100">{{ t('chat_title') }}</h1>
+            <h1 class="font-display text-xl font-semibold text-slate-100 tracking-wide">{{ t('chat_title') }}</h1>
             <p class="text-xs text-slate-400 flex items-center gap-1.5">
               <span class="w-1.5 h-1.5 rounded-full" :style="{ backgroundColor: currentProvider?.color }"></span>
               {{ providerLabel }} <span class="text-slate-600">·</span> {{ modelLabel }}
@@ -452,7 +452,7 @@ function useSuggestion(text: string) {
         <!-- Avatar -->
         <div class="flex-shrink-0 mt-1">
           <div v-if="msg.role === 'assistant'"
-            class="w-8 h-8 rounded-lg bg-gradient-to-br from-accent to-cyan-500 flex items-center justify-center shadow-md">
+            class="w-8 h-8 rounded-lg bg-gradient-to-br from-accent to-accent-light flex items-center justify-center shadow-md">
             <SparklesIcon class="w-4 h-4 text-white" />
           </div>
           <div v-else class="w-8 h-8 rounded-lg overflow-hidden bg-dark-700 shadow-md">
@@ -475,7 +475,7 @@ function useSuggestion(text: string) {
               <button
                 @click="downloadExport(msg)"
                 :disabled="msg.downloading"
-                class="inline-flex items-center gap-2 px-3 py-2 bg-cyan-600 hover:bg-cyan-500 text-white text-xs font-semibold rounded-lg transition disabled:opacity-50"
+                class="inline-flex items-center gap-2 px-3 py-2 bg-accent hover:bg-accent-light text-white text-xs font-semibold rounded-lg transition disabled:opacity-50"
               >
                 <div v-if="msg.downloading" class="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
                 <ArrowDownTrayIcon v-else class="w-4 h-4" />
@@ -489,18 +489,18 @@ function useSuggestion(text: string) {
               class="absolute -top-2 -right-2 opacity-0 group-hover:opacity-100 transition-all bg-dark-700 border border-dark-600 rounded-lg p-1.5 hover:bg-dark-600 shadow-md"
               :title="copiedId === msg.id ? t('chat_copied') : 'Copy'"
             >
-              <CheckIcon v-if="copiedId === msg.id" class="w-3.5 h-3.5 text-emerald-400" />
+              <CheckIcon v-if="copiedId === msg.id" class="w-3.5 h-3.5 text-[#5e8a74]" />
               <ClipboardDocumentIcon v-else class="w-3.5 h-3.5 text-slate-400" />
             </button>
             <span v-if="copiedId === msg.id"
-              class="absolute -top-8 right-0 text-xs bg-dark-700 text-emerald-400 px-2 py-1 rounded-md border border-dark-600 whitespace-nowrap animate-fadeIn">
+              class="absolute -top-8 right-0 text-xs bg-dark-700 text-[#5e8a74] px-2 py-1 rounded-md border border-dark-600 whitespace-nowrap animate-fadeIn">
               {{ t('chat_copied') }}
             </span>
           </div>
 
           <!-- User Message -->
           <div v-else
-            class="rounded-2xl rounded-tr-md px-4 py-3 bg-gradient-to-r from-accent to-emerald-600 text-white shadow-lg shadow-accent/10 text-sm leading-relaxed whitespace-pre-wrap">
+            class="rounded-2xl rounded-tr-md px-4 py-3 bg-gradient-to-r from-accent to-accent-light text-white shadow-lg shadow-accent/10 text-sm leading-relaxed whitespace-pre-wrap">
             {{ msg.content }}
           </div>
 
@@ -513,7 +513,7 @@ function useSuggestion(text: string) {
 
       <!-- Typing Indicator -->
       <div v-if="loading" class="flex gap-3 animate-fadeIn">
-        <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-accent to-cyan-500 flex items-center justify-center shadow-md flex-shrink-0">
+        <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-accent to-accent-light flex items-center justify-center shadow-md flex-shrink-0">
           <SparklesIcon class="w-4 h-4 text-white" />
         </div>
         <div class="bg-dark-800 border border-dark-700 rounded-2xl rounded-tl-md px-5 py-4 shadow-lg">
@@ -559,7 +559,7 @@ function useSuggestion(text: string) {
           :disabled="loading || !input.trim()"
           class="p-3.5 rounded-2xl transition-all duration-300 flex-shrink-0"
           :class="!loading && input.trim()
-            ? 'bg-gradient-to-r from-accent to-emerald-600 text-white shadow-lg shadow-accent/30 hover:-translate-y-0.5 hover:shadow-xl hover:shadow-accent/40'
+            ? 'bg-gradient-to-r from-accent to-accent-light text-white shadow-lg shadow-accent/30 hover:-translate-y-0.5 hover:shadow-xl hover:shadow-accent/40'
             : 'bg-dark-700 text-slate-500'"
         >
           <PaperAirplaneIcon class="w-5 h-5" />
@@ -572,17 +572,17 @@ function useSuggestion(text: string) {
 
 <style scoped>
 .prose-chat {
-  color: var(--th-text, #e2e8f0);
+  color: var(--th-text, #2b3242);
   line-height: 1.7;
 }
 .prose-chat :deep(p) { margin: 0.3em 0; }
 .prose-chat :deep(ul), .prose-chat :deep(ol) { padding-left: 1.25em; margin: 0.4em 0; }
 .prose-chat :deep(li) { margin: 0.15em 0; }
-.prose-chat :deep(strong) { color: #10b981; font-weight: 600; }
-.prose-chat :deep(code) { background: rgba(0,0,0,0.3); padding: 0.15em 0.4em; border-radius: 4px; font-size: 0.85em; }
-.prose-chat :deep(h1), .prose-chat :deep(h2), .prose-chat :deep(h3) { font-weight: 700; margin: 0.6em 0 0.3em; color: #f1f5f9; }
+.prose-chat :deep(strong) { color: var(--color-accent); font-weight: 600; }
+.prose-chat :deep(code) { background: rgba(120,130,150,0.15); padding: 0.15em 0.4em; border-radius: 4px; font-size: 0.85em; }
+.prose-chat :deep(h1), .prose-chat :deep(h2), .prose-chat :deep(h3) { font-weight: 700; margin: 0.6em 0 0.3em; color: inherit; }
 .prose-chat :deep(table) { width: 100%; border-collapse: collapse; margin: 0.5em 0; font-size: 0.85em; }
-.prose-chat :deep(th) { text-align: left; padding: 0.4em 0.6em; border-bottom: 1px solid #334155; color: #94a3b8; font-weight: 600; }
-.prose-chat :deep(td) { padding: 0.3em 0.6em; border-bottom: 1px solid #1e293b; }
-.prose-chat :deep(blockquote) { border-left: 3px solid #10b981; padding-left: 0.8em; margin: 0.5em 0; color: #94a3b8; }
+.prose-chat :deep(th) { text-align: left; padding: 0.4em 0.6em; border-bottom: 1px solid rgba(120,130,150,0.3); color: var(--color-accent); font-weight: 600; }
+.prose-chat :deep(td) { padding: 0.3em 0.6em; border-bottom: 1px solid rgba(120,130,150,0.18); }
+.prose-chat :deep(blockquote) { border-left: 3px solid var(--color-accent); padding-left: 0.8em; margin: 0.5em 0; opacity: 0.85; }
 </style>
