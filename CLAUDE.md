@@ -20,6 +20,7 @@
     * **Default provider (Phase 10) = `gemini`** ฝั่ง frontend (เสถียรกับภาษาไทย) — Claude/Groq ยังเลือกได้จาก dropdown
     * **Claude graceful fallback (Phase 10):** `claude-agent-sdk` spawn subprocess บน **Windows** ทำให้ภาษาไทยใน stdin เพี้ยนเป็น `?` — `callClaude` จึงตรวจ Windows+ภาษาไทย / timeout 30s / ล้มเหลว แล้ว **คืน `null` → chat() fallback ไป Gemini→Groq อัตโนมัติ** เพื่อให้ตอบได้เสมอ (ไม่โยน error ดิบ)
     * **คุณภาพคำตอบ (Phase 10):** ฉีด "อันดับ best/worst ที่คำนวณไว้แล้ว" (`rankEmployees`) เข้า context ให้ LLM ตอบ "ดี/แย่ที่สุด N คน" แม่นขึ้น
+    * **กรองช่วงวันที่ในแชท + ชั่วโมงทำงานจริง (Phase 11):** `chat()` ดึงช่วงวันที่จากคำถามด้วย `extractDateRange` (รองรับ "วันที่ 1 เดือน 6 ถึง วันที่ 10 เดือน 6", "วันที่ 1-10 มิถุนายน", "1/6 ถึง 10/6", ทั้งเดือน/ทั้งปี) แล้ว scope ข้อมูลให้ตรงคำถาม; และเมื่อถามเรื่อง "เวลาเข้างาน/ชั่วโมงทำงานจริง" (มากที่สุด/ดีที่สุด/น้อยที่สุด) ระบบคำนวณ **ระยะเวลาทำงานจริง = เวลาออก − เวลาเข้า** (`extractWorkMinutes` + `computeWorkDurationRanking`) **เฉพาะวันที่สแกนครบทั้งเข้า-ออก** (วันไม่สแกนเข้า/ออก/ขาด/หยุด ไม่นับ) แล้วฉีดอันดับเข้า context → LLM ไม่ต้องคิดเลขเอง ตัวเลขแม่นเท่ากันทุก provider
     * ⚠️ **ห้ามตั้ง `ANTHROPIC_API_KEY` ที่ใดเลย** เพื่อคุมค่าใช้จ่าย (Server ใช้ Gemini/Groq เท่านั้น)
 
 ### ⚙️ Environment Variables Reference (`backend/.env`)

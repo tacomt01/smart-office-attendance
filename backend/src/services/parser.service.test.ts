@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { parseTimeValue, toMinutes } from './parser.service.js';
+import { parseTimeValue, toMinutes, extractWorkMinutes } from './parser.service.js';
 
 describe('toMinutes', () => {
   it('แปลง HH:MM เป็นจำนวนนาทีถูกต้อง', () => {
@@ -76,5 +76,34 @@ describe('parseTimeValue — 6 สถานะการทำงาน + holiday
     expect(parseTimeValue('XX:XX-18:00')).toBe('holiday');
     expect(parseTimeValue('08:00-YY:YY')).toBe('holiday');
     expect(parseTimeValue('abc')).toBe('holiday');
+  });
+});
+
+describe('extractWorkMinutes — ชั่วโมงทำงานจริง (ออก − เข้า)', () => {
+  it('นับเฉพาะวันสแกนครบ คืนจำนวนนาที', () => {
+    expect(extractWorkMinutes('08:00-18:00')).toBe(600);
+    expect(extractWorkMinutes('08:49-18:24')).toBe(575);
+  });
+
+  it('ตัด L ฝั่งเข้างานก่อนคำนวณ', () => {
+    expect(extractWorkMinutes('09:45L-18:30')).toBe(525);
+  });
+
+  it('คืน null เมื่อไม่สแกนเข้า/ออก/ขาด (ไม่นับ)', () => {
+    expect(extractWorkMinutes('N-18:11')).toBeNull();
+    expect(extractWorkMinutes('08:32-N')).toBeNull();
+    expect(extractWorkMinutes('N-N')).toBeNull();
+  });
+
+  it('คืน null เมื่อเป็นวันหยุดหรือค่าว่าง', () => {
+    expect(extractWorkMinutes('-')).toBeNull();
+    expect(extractWorkMinutes('')).toBeNull();
+    expect(extractWorkMinutes('   ')).toBeNull();
+  });
+
+  it('คืน null เมื่อรูปแบบเวลาเพี้ยนหรือออกก่อนเข้า', () => {
+    expect(extractWorkMinutes('XX:XX-18:00')).toBeNull();
+    expect(extractWorkMinutes('08:00-YY:YY')).toBeNull();
+    expect(extractWorkMinutes('18:30-08:00')).toBeNull();
   });
 });

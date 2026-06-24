@@ -54,6 +54,39 @@ describe('extractExportFilters — เดือน/ปี', () => {
   });
 });
 
+describe('extractExportFilters — ช่วงวันแบบเจาะจงวัน', () => {
+  it('"วันที่ 1 เดือน 6 ถึง วันที่ 10 เดือน 6" → 06-01..06-10', () => {
+    const f = extractExportFilters('export ตั้งแต่วันที่ 1 เดือน 6 ถึง วันที่ 10 เดือน 6', EMPLOYEES, YEAR);
+    expect(f.dateFrom).toBe('2026-06-01');
+    expect(f.dateTo).toBe('2026-06-10');
+  });
+  it('"วันที่ 1-10 มิถุนายน" (เดือนชื่อ) → 06-01..06-10', () => {
+    const f = extractExportFilters('export วันที่ 1-10 มิถุนายน', EMPLOYEES, YEAR);
+    expect(f.dateFrom).toBe('2026-06-01');
+    expect(f.dateTo).toBe('2026-06-10');
+  });
+  it('"1/6 ถึง 10/6" (เลขล้วน D/M) → 06-01..06-10', () => {
+    const f = extractExportFilters('export 1/6 ถึง 10/6', EMPLOYEES, YEAR);
+    expect(f.dateFrom).toBe('2026-06-01');
+    expect(f.dateTo).toBe('2026-06-10');
+  });
+  it('วันเดียว "วันที่ 5 เดือน 6" → 06-05..06-05', () => {
+    const f = extractExportFilters('export วันที่ 5 เดือน 6', EMPLOYEES, YEAR);
+    expect(f.dateFrom).toBe('2026-06-05');
+    expect(f.dateTo).toBe('2026-06-05');
+  });
+  it('ช่วงวันแบบข้ามเดือน "วันที่ 28 เดือน 6 ถึง วันที่ 3 เดือน 7"', () => {
+    const f = extractExportFilters('export วันที่ 28 เดือน 6 ถึง วันที่ 3 เดือน 7', EMPLOYEES, YEAR);
+    expect(f.dateFrom).toBe('2026-06-28');
+    expect(f.dateTo).toBe('2026-07-03');
+  });
+  it('ระบุวันพร้อมปี พ.ศ. → ใช้ปี ค.ศ. ที่แปลงแล้ว', () => {
+    const f = extractExportFilters('export วันที่ 1 เดือน 6 ถึง วันที่ 10 เดือน 6 ปี 2569', EMPLOYEES, YEAR);
+    expect(f.dateFrom).toBe('2026-06-01');
+    expect(f.dateTo).toBe('2026-06-10');
+  });
+});
+
 describe('extractExportFilters — สถานะ', () => {
   it('มาสาย → late', () => {
     expect(extractExportFilters('export เฉพาะคนมาสาย', EMPLOYEES, YEAR).status).toBe('late');

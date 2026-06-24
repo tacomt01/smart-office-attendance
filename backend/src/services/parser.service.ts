@@ -87,6 +87,32 @@ export function parseTimeValue(raw: string): AttendanceStatus {
   return 'normal';
 }
 
+/**
+ * คำนวณ "ชั่วโมงทำงานจริง" (เป็นนาที) จาก raw value = เวลาออก − เวลาเข้า
+ * นับเฉพาะวันที่สแกนครบทั้งเข้าและออก — คืน null เมื่อ:
+ *   - เป็นวันหยุด ('-' / ว่าง) หรือฝั่งใดเป็น N (ไม่สแกนเข้า/ออก/ขาด) → ไม่นับ
+ *   - รูปแบบเวลาไม่ถูกต้อง หรือเวลาออกก่อนเวลาเข้า (ข้อมูลเพี้ยน)
+ */
+export function extractWorkMinutes(rawValue: string): number | null {
+  const trimmed = rawValue.trim();
+  if (trimmed === '-' || trimmed === '') return null;
+
+  const parts = trimmed.split('-');
+  if (parts.length < 2) return null;
+
+  const checkIn = parts[0].trim();
+  const checkOut = parts.slice(1).join('-').trim();
+  if (checkIn === 'N' || checkOut === 'N') return null;
+
+  // ตัด L (มาสาย) ฝั่งเข้างานออกก่อนแปลงเป็นนาที
+  const inMin = toMinutes(checkIn.replace(/L$/i, ''));
+  const outMin = toMinutes(checkOut.replace(/L$/i, ''));
+  if (inMin === null || outMin === null) return null;
+
+  const worked = outMin - inMin;
+  return worked < 0 ? null : worked;
+}
+
 export function parseAttendanceFile(buffer: Buffer): ParseResult {
   const wb = XLSX.read(buffer, { type: 'buffer' });
   const ws = wb.Sheets[wb.SheetNames[0]];

@@ -232,6 +232,64 @@ function lastDayOfMonth(year: number, month: number): number {
   return new Date(Date.UTC(year, month, 0)).getUTCDate();
 }
 
+// ช่วงวันแบบเจาะจงวัน เช่น "วันที่ 1 เดือน 6 ถึง วันที่ 10 เดือน 6", "วันที่ 1-10 มิถุนายน", "1/6 ถึง 10/6"
+// คืน {} ถ้าหาเดือน/วันไม่ได้ (ให้ caller ไป fallback เป็นทั้งเดือน/ทั้งปีต่อ)
+function matchDayMonthRange(message: string, year: number): { dateFrom?: string; dateTo?: string } {
+  const fallbackMonth = (() => {
+    const named = matchMonth(message);
+    if (named) return named;
+    const mm = message.match(/เดือน\s*(\d{1,2})/);
+    return mm ? parseInt(mm[1], 10) : undefined;
+  })();
+  const valid = (d?: number, m?: number) => !!d && d >= 1 && d <= 31 && !!m && m >= 1 && m <= 12;
+  const iso = (d: number, m: number) => `${year}-${pad2(m)}-${pad2(d)}`;
+
+  // รูปแบบ D/M (เลขล้วน) — ถ้ามี 2 ชุดถือเป็นช่วง
+  const dm = [...message.matchAll(/\b(\d{1,2})\/(\d{1,2})\b/g)].map((x) => ({
+    day: parseInt(x[1], 10),
+    month: parseInt(x[2], 10),
+  }));
+  if (dm.length >= 1) {
+    const a = dm[0];
+    const b = dm[dm.length - 1];
+    if (valid(a.day, a.month) && valid(b.day, b.month)) {
+      return { dateFrom: iso(a.day, a.month), dateTo: iso(b.day, b.month) };
+    }
+  }
+
+  // กลุ่ม "วันที่ D [เดือน M]" ตามลำดับในข้อความ
+  const groups = [...message.matchAll(/วันที่\s*(\d{1,2})(?:\s*เดือน\s*(\d{1,2}))?/g)].map((x) => ({
+    day: parseInt(x[1], 10),
+    month: x[2] ? parseInt(x[2], 10) : undefined,
+  }));
+
+  if (groups.length >= 2) {
+    const a = groups[0];
+    const b = groups[groups.length - 1];
+    const am = a.month ?? fallbackMonth;
+    const bm = b.month ?? fallbackMonth;
+    if (valid(a.day, am) && valid(b.day, bm)) return { dateFrom: iso(a.day, am!), dateTo: iso(b.day, bm!) };
+  }
+
+  // ช่วงเลขวัน "D - D" / "D ถึง D" (เดือนเดียว) — ครอบคลุม "วันที่ 1-10 มิถุนายน"
+  const range = message.match(/(?:วันที่\s*)?(\d{1,2})\s*(?:-|–|—|ถึง|to)\s*(?:วันที่\s*)?(\d{1,2})/);
+  if (range) {
+    const d1 = parseInt(range[1], 10);
+    const d2 = parseInt(range[2], 10);
+    const m = groups[0]?.month ?? fallbackMonth;
+    if (valid(d1, m) && valid(d2, m)) return { dateFrom: iso(d1, m!), dateTo: iso(d2, m!) };
+  }
+
+  // วันเดียว "วันที่ D [เดือน M]"
+  if (groups.length === 1) {
+    const g = groups[0];
+    const m = g.month ?? fallbackMonth;
+    if (valid(g.day, m)) return { dateFrom: iso(g.day, m!), dateTo: iso(g.day, m!) };
+  }
+
+  return {};
+}
+
 function matchDateRange(message: string, currentYear: number): { dateFrom?: string; dateTo?: string } {
   // 1) ระบุวันที่แบบ YYYY-MM-DD ตรงๆ (ใช้ค่าน้อยสุด/มากสุดเป็นช่วง)
   const iso = message.match(/\d{4}-\d{2}-\d{2}/g);
@@ -253,6 +311,10 @@ function matchDateRange(message: string, currentYear: number): { dateFrom?: stri
     }
   }
 
+  // 2.5) ช่วงวันแบบเจาะจงวัน (เช่น "วันที่ 1 เดือน 6 ถึง วันที่ 10 เดือน 6") — เช็คก่อน "ทั้งเดือน"
+  const dayRange = matchDayMonthRange(message, year);
+  if (dayRange.dateFrom) return dayRange;
+
   // 3) เดือน → ทั้งเดือน
   const month = matchMonth(message);
   if (month) {
@@ -268,6 +330,14 @@ function matchDateRange(message: string, currentYear: number): { dateFrom?: stri
   }
 
   return {};
+}
+
+/** ดึงเฉพาะช่วงวันที่จากข้อความ (ใช้ในแชทเพื่อ scope ข้อมูลตามคำถาม) */
+export function extractDateRange(
+  message: string,
+  currentYear: number,
+): { dateFrom?: string; dateTo?: string } {
+  return matchDateRange(message, currentYear);
 }
 
 /**
