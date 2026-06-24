@@ -4,7 +4,11 @@
 ระบบ Web Application สำหรับจัดการ อัปโหลด และวิเคราะห์ข้อมูลการเข้า-ออกงานของพนักงานตามรูปแบบรายงาน Daily Attendance พร้อมแดชบอร์ดแสดงผลสถิติและระบบ AI Chatbot วิเคราะห์ข้อมูลเชิงลึกภาษาไทย
 
 ## 🛠️ Technology Stack & UI Theme
-* **UI Theme:** **Premium Dark Mode Only** (เน้นพื้นหลังสีโทนมืด เช่น Slate-900, Zinc-900 ตัวอักษรสีอ่อน และตัดด้วย Accent Color ที่ดูทันสมัย เช่น Emerald, Cyan หรือ Indigo สำหรับการแสดงสถานะและการ์ดสถิติ)
+* **UI Theme (Phase 9 — ปัจจุบัน):** **Soft Luxury Minimalist — "Cool Pearl + Dusty Blue"** (โทนสบายตา ไม่สว่างหรือมืดเกินไป) เน้นพื้นหลังโทนมุก/ฟ้าหม่น การ์ดสีอ่อนนวล เส้นขอบบางนุ่ม เงาเบา และ accent สีฟ้าหม่น (dusty blue) — หัวข้อใช้ฟอนต์ serif (Cormorant Garamond) เนื้อหาใช้ Inter
+    * **ระบบสลับธีม 3 แบบ (จูนใหม่ทั้งหมดเป็นโทน soft luxury):** `light` (พื้นมุก — ค่าเริ่มต้น), `medium` (slate-blue กลาง), `dark` (soft-ink ไม่ใช่ดำสนิท) — สลับได้จากปุ่มบน navbar, จำค่าใน `localStorage`
+    * **แหล่งความจริงของ palette มี 2 ที่ (ต้องแก้ให้ตรงกัน):** token เริ่มต้นใน `frontend/src/assets/main.css` (`@theme`) และ runtime switcher ใน `frontend/src/stores/preferences.store.ts` (`THEMES` + `applyTheme`) — ทุก component อ้างอิงผ่าน token `bg-dark-900/800/700/600`, `text-accent`, `text-accent-light`, `border-dark-700` จึงเปลี่ยนสีทั้งระบบได้จากจุดเดียว
+    * **สถานะ/สีกราฟ:** ใช้โทน muted (sage/amber/terracotta/rose/mauve/periwinkle) ให้อ่านง่ายทั้งบนพื้นมุกและพื้น ink — กำหนดใน `STATUS_CONFIG` ของ chart components และ `statusColors` ใน DataManagement
+    * *(ของเดิม Phase 1–8 เป็น "Premium Dark Mode Only" — ปัจจุบันเลิกใช้แล้ว)*
 * **Frontend:** Vue 3 (Composition API), Pinia (State Management), Tailwind CSS, TypeScript
 * **Backend:** Node.js (Express.js) พร้อม TypeScript
 * **Database:** SQLite (จัดการผ่าน Prisma ORM รองรับ TypeScript สมบูรณ์)

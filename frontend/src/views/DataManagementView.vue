@@ -90,13 +90,13 @@ const statusOptions = [
 ];
 
 const statusColors: Record<string, string> = {
-  normal: 'bg-emerald-500/20 text-emerald-300',
-  late: 'bg-amber-500/20 text-amber-300',
-  early_leave: 'bg-orange-500/20 text-orange-300',
-  missing_check_in: 'bg-red-500/20 text-red-300',
-  missing_check_out: 'bg-rose-500/20 text-rose-300',
-  absent: 'bg-violet-500/20 text-violet-300',
-  holiday: 'bg-slate-500/20 text-slate-300',
+  normal: 'bg-[#6f9e87]/15 text-[#5e8a74]',
+  late: 'bg-[#d9a84e]/15 text-[#b8862f]',
+  early_leave: 'bg-[#cf8a63]/15 text-[#bd7850]',
+  missing_check_in: 'bg-[#cf6f72]/15 text-[#c25c5f]',
+  missing_check_out: 'bg-[#b97aa0]/15 text-[#a86790]',
+  absent: 'bg-[#8a8fc4]/15 text-[#767bb5]',
+  holiday: 'bg-slate-400/15 text-slate-500',
 };
 
 onMounted(() => {
@@ -246,35 +246,35 @@ const rangeEnd = computed(() => Math.min(currentPage.value * pageSize, totalReco
 </script>
 
 <template>
-  <div class="p-8 max-w-6xl mx-auto">
+  <div class="p-4 md:p-8 max-w-6xl mx-auto">
     <!-- Page Title -->
-    <h1 class="text-2xl font-bold text-accent flex items-center gap-2 mb-6">
+    <h1 class="font-display text-3xl font-semibold tracking-wide text-accent flex items-center gap-2 mb-7">
       <CircleStackIcon class="w-7 h-7" /> {{ t('data_title') }}
     </h1>
 
     <!-- Section 1: Overview Cards -->
     <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6 stagger">
-      <div class="bg-dark-800 border border-dark-700 rounded-xl p-5 flex items-center gap-4 card-hover animate-fadeInUp">
-        <div class="w-12 h-12 rounded-lg bg-emerald-500/10 flex items-center justify-center">
-          <UsersIcon class="w-6 h-6 text-emerald-400" />
+      <div class="bg-dark-800 border border-dark-700 rounded-2xl p-5 shadow-sm flex items-center gap-4 card-hover animate-fadeInUp">
+        <div class="w-12 h-12 rounded-xl bg-accent/10 flex items-center justify-center">
+          <UsersIcon class="w-6 h-6 text-accent" />
         </div>
         <div>
           <p class="text-xs text-slate-400">{{ t('data_employees') }}</p>
           <p class="text-2xl font-bold text-slate-100">{{ overview.totalEmployees }}</p>
         </div>
       </div>
-      <div class="bg-dark-800 border border-dark-700 rounded-xl p-5 flex items-center gap-4 card-hover animate-fadeInUp">
-        <div class="w-12 h-12 rounded-lg bg-cyan-500/10 flex items-center justify-center">
-          <DocumentTextIcon class="w-6 h-6 text-cyan-400" />
+      <div class="bg-dark-800 border border-dark-700 rounded-2xl p-5 shadow-sm flex items-center gap-4 card-hover animate-fadeInUp">
+        <div class="w-12 h-12 rounded-xl bg-[#6f9e87]/15 flex items-center justify-center">
+          <DocumentTextIcon class="w-6 h-6 text-[#5e8a74]" />
         </div>
         <div>
           <p class="text-xs text-slate-400">{{ t('data_records') }}</p>
           <p class="text-2xl font-bold text-slate-100">{{ overview.totalRecords }}</p>
         </div>
       </div>
-      <div class="bg-dark-800 border border-dark-700 rounded-xl p-5 flex items-center gap-4 card-hover animate-fadeInUp">
-        <div class="w-12 h-12 rounded-lg bg-indigo-500/10 flex items-center justify-center">
-          <CalendarDaysIcon class="w-6 h-6 text-indigo-400" />
+      <div class="bg-dark-800 border border-dark-700 rounded-2xl p-5 shadow-sm flex items-center gap-4 card-hover animate-fadeInUp">
+        <div class="w-12 h-12 rounded-xl bg-[#8a8fc4]/15 flex items-center justify-center">
+          <CalendarDaysIcon class="w-6 h-6 text-[#767bb5]" />
         </div>
         <div>
           <p class="text-xs text-slate-400">{{ t('data_date_range') }}</p>
@@ -287,7 +287,7 @@ const rangeEnd = computed(() => Math.min(currentPage.value * pageSize, totalReco
     </div>
 
     <!-- Section 2: Filter Bar -->
-    <div class="bg-dark-800 border border-dark-700 rounded-xl p-4 mb-4 flex flex-col md:flex-row md:flex-wrap gap-3 md:items-end">
+    <div class="bg-dark-800 border border-dark-700 rounded-2xl p-5 shadow-sm mb-4 flex flex-col md:flex-row md:flex-wrap gap-3 md:items-end">
       <div class="w-full md:flex-1 md:min-w-[180px]">
         <label class="block text-xs text-slate-400 mb-1">{{ t('data_search_name') }}</label>
         <div class="relative">
@@ -299,12 +299,12 @@ const rangeEnd = computed(() => Math.min(currentPage.value * pageSize, totalReco
       <div class="w-full md:w-auto md:min-w-[150px]">
         <label class="block text-xs text-slate-400 mb-1">{{ t('filter_date_from') }}</label>
         <input v-model="filterDateFrom" type="date"
-          class="w-full px-3 py-2 bg-dark-900 border border-dark-600 rounded-lg text-slate-100 text-sm focus:outline-none focus:border-accent [&::-webkit-calendar-picker-indicator]:invert [&::-webkit-calendar-picker-indicator]:cursor-pointer" />
+          class="w-full px-3 py-2 bg-dark-900 border border-dark-600 rounded-lg text-slate-100 text-sm focus:outline-none focus:border-accent [&::-webkit-calendar-picker-indicator]:cursor-pointer" />
       </div>
       <div class="w-full md:w-auto md:min-w-[150px]">
         <label class="block text-xs text-slate-400 mb-1">{{ t('filter_date_to') }}</label>
         <input v-model="filterDateTo" type="date"
-          class="w-full px-3 py-2 bg-dark-900 border border-dark-600 rounded-lg text-slate-100 text-sm focus:outline-none focus:border-accent [&::-webkit-calendar-picker-indicator]:invert [&::-webkit-calendar-picker-indicator]:cursor-pointer" />
+          class="w-full px-3 py-2 bg-dark-900 border border-dark-600 rounded-lg text-slate-100 text-sm focus:outline-none focus:border-accent [&::-webkit-calendar-picker-indicator]:cursor-pointer" />
       </div>
       <div class="w-full md:w-auto md:min-w-[140px]">
         <label class="block text-xs text-slate-400 mb-1">{{ t('data_status') }}</label>
@@ -315,7 +315,7 @@ const rangeEnd = computed(() => Math.min(currentPage.value * pageSize, totalReco
       </div>
       <div class="flex flex-col sm:flex-row gap-2 w-full md:w-auto">
         <button @click="search" class="w-full sm:w-auto px-4 py-2 bg-accent hover:bg-accent-light text-dark-900 font-semibold rounded-lg text-sm transition">{{ t('search') }}</button>
-        <button @click="exportExcel" :disabled="exporting" class="flex items-center justify-center gap-1.5 w-full sm:w-auto px-4 py-2 bg-cyan-600 hover:bg-cyan-500 text-white font-semibold rounded-lg text-sm transition disabled:opacity-50">
+        <button @click="exportExcel" :disabled="exporting" class="flex items-center justify-center gap-1.5 w-full sm:w-auto px-4 py-2 bg-[#6f9e87] hover:bg-[#5e8a74] text-white font-semibold rounded-lg text-sm transition disabled:opacity-50">
           <template v-if="exporting">
             <div class="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
             {{ t('data_exporting') }}
@@ -333,7 +333,7 @@ const rangeEnd = computed(() => Math.min(currentPage.value * pageSize, totalReco
     </div>
 
     <!-- Floating Action Bar -->
-    <div v-if="selectedIds.size > 0" class="bg-dark-800 border border-accent/30 rounded-xl p-3 mb-4 flex items-center justify-between">
+    <div v-if="selectedIds.size > 0" class="bg-dark-800 border border-accent/30 rounded-2xl p-3 shadow-sm mb-4 flex items-center justify-between">
       <span class="text-sm text-slate-300">{{ t('data_selected') }} <span class="text-accent font-semibold">{{ selectedIds.size }}</span> {{ t('data_items') }}</span>
       <button @click="deleteSelectedRecords" class="flex items-center gap-1.5 px-4 py-2 bg-red-600 hover:bg-red-500 text-white rounded-lg text-sm transition">
         <TrashIcon class="w-4 h-4" /> {{ t('data_delete_selected') }}
@@ -341,7 +341,7 @@ const rangeEnd = computed(() => Math.min(currentPage.value * pageSize, totalReco
     </div>
 
     <!-- Section 3: Records Table -->
-    <div class="bg-dark-800 border border-dark-700 rounded-xl overflow-x-auto mb-6">
+    <div class="bg-dark-800 border border-dark-700 rounded-2xl overflow-x-auto mb-6 shadow-sm">
       <table class="w-full text-sm">
         <thead>
           <tr class="border-b border-dark-700 text-slate-400">
@@ -402,8 +402,8 @@ const rangeEnd = computed(() => Math.min(currentPage.value * pageSize, totalReco
     </div>
 
     <!-- Section 4: Danger Zone -->
-    <div class="bg-dark-800 border border-red-500/30 rounded-xl p-6 transition-all duration-300 hover:shadow-[0_0_20px_rgba(239,68,68,0.1)]">
-      <h2 class="text-lg font-bold text-red-400 flex items-center gap-2 mb-5">
+    <div class="bg-dark-800 border border-red-500/30 rounded-2xl p-6 shadow-sm transition-all duration-300 hover:shadow-[0_0_20px_rgba(239,68,68,0.1)]">
+      <h2 class="font-display text-xl font-semibold text-red-400 flex items-center gap-2 mb-5 tracking-wide">
         <ExclamationTriangleIcon class="w-6 h-6" /> {{ t('data_danger_title') }}
       </h2>
 
@@ -414,10 +414,10 @@ const rangeEnd = computed(() => Math.min(currentPage.value * pageSize, totalReco
             <label class="block text-xs text-slate-400 mb-1">{{ t('data_delete_by_date') }}</label>
             <div class="flex gap-2">
               <input v-model="dangerDateFrom" type="date"
-                class="px-3 py-2 bg-dark-900 border border-dark-600 rounded-lg text-slate-100 text-sm focus:outline-none focus:border-red-400 [&::-webkit-calendar-picker-indicator]:invert [&::-webkit-calendar-picker-indicator]:cursor-pointer" />
+                class="px-3 py-2 bg-dark-900 border border-dark-600 rounded-lg text-slate-100 text-sm focus:outline-none focus:border-red-400 [&::-webkit-calendar-picker-indicator]:cursor-pointer" />
               <span class="text-slate-500 self-center">{{ t('data_to') }}</span>
               <input v-model="dangerDateTo" type="date"
-                class="px-3 py-2 bg-dark-900 border border-dark-600 rounded-lg text-slate-100 text-sm focus:outline-none focus:border-red-400 [&::-webkit-calendar-picker-indicator]:invert [&::-webkit-calendar-picker-indicator]:cursor-pointer" />
+                class="px-3 py-2 bg-dark-900 border border-dark-600 rounded-lg text-slate-100 text-sm focus:outline-none focus:border-red-400 [&::-webkit-calendar-picker-indicator]:cursor-pointer" />
             </div>
           </div>
           <button @click="deleteDateRange" class="flex items-center gap-1.5 px-4 py-2 bg-red-600 hover:bg-red-500 text-white rounded-lg text-sm transition">
@@ -467,13 +467,13 @@ const rangeEnd = computed(() => Math.min(currentPage.value * pageSize, totalReco
         <!-- Result state -->
         <template v-else-if="deleteResult">
           <div class="flex flex-col items-center py-6">
-            <div v-if="deleteResult === 'success'" class="w-14 h-14 bg-emerald-500/20 rounded-full flex items-center justify-center mb-4">
-              <svg class="w-8 h-8 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg>
+            <div v-if="deleteResult === 'success'" class="w-14 h-14 bg-[#6f9e87]/20 rounded-full flex items-center justify-center mb-4">
+              <svg class="w-8 h-8 text-[#5e8a74]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg>
             </div>
             <div v-else class="w-14 h-14 bg-red-500/20 rounded-full flex items-center justify-center mb-4">
               <svg class="w-8 h-8 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
             </div>
-            <p :class="deleteResult === 'success' ? 'text-emerald-400' : 'text-red-400'" class="text-lg font-semibold">{{ deleteMessage }}</p>
+            <p :class="deleteResult === 'success' ? 'text-[#5e8a74]' : 'text-red-400'" class="text-lg font-semibold">{{ deleteMessage }}</p>
             <button v-if="deleteResult === 'error'" @click="showDeleteModal = false"
               class="mt-4 px-4 py-2 bg-dark-700 hover:bg-dark-600 text-slate-300 rounded-lg text-sm transition">{{ t('close') }}</button>
           </div>
@@ -481,7 +481,7 @@ const rangeEnd = computed(() => Math.min(currentPage.value * pageSize, totalReco
 
         <!-- Confirmation state -->
         <template v-else>
-          <h3 class="text-lg font-bold text-slate-100 mb-2 flex items-center gap-2">
+          <h3 class="font-display text-xl font-semibold text-slate-100 mb-2 flex items-center gap-2">
             <ExclamationTriangleIcon class="w-5 h-5 text-red-400" /> {{ t('data_confirm_delete') }}
           </h3>
           <p class="text-slate-300 text-sm mb-2">{{ t('data_confirm_delete_msg') }} <span class="text-accent font-semibold">{{ deleteCount }}</span> {{ t('data_items') }}</p>

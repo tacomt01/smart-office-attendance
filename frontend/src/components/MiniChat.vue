@@ -152,10 +152,10 @@ async function downloadExport(msg: MiniMessage) {
         class="w-[calc(100vw-2rem)] max-w-sm h-[28rem] max-h-[70vh] flex flex-col bg-dark-800 border border-dark-700 rounded-2xl shadow-2xl overflow-hidden">
         <!-- Header -->
         <div class="flex items-center gap-2 px-4 py-3 border-b border-dark-700 bg-dark-800/80">
-          <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-accent to-cyan-500 flex items-center justify-center shadow">
+          <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-accent to-accent-light flex items-center justify-center shadow">
             <SparklesIcon class="w-4 h-4 text-white" />
           </div>
-          <span class="text-sm font-bold text-slate-100 mr-auto">{{ t('minichat_title') }}</span>
+          <span class="font-display text-base font-semibold text-slate-100 mr-auto tracking-wide">{{ t('minichat_title') }}</span>
           <button @click="goFull" :title="t('minichat_open_full')"
             class="p-1.5 rounded-lg text-slate-400 hover:text-accent hover:bg-dark-700 transition">
             <ArrowsPointingOutIcon class="w-4 h-4" />
@@ -191,7 +191,7 @@ async function downloadExport(msg: MiniMessage) {
                 </button>
               </div>
               <div v-else
-                class="rounded-2xl rounded-tr-md px-3 py-2 bg-gradient-to-r from-accent to-emerald-600 text-white text-sm leading-relaxed whitespace-pre-wrap">
+                class="rounded-2xl rounded-tr-md px-3 py-2 bg-gradient-to-r from-accent to-accent-light text-white text-sm leading-relaxed whitespace-pre-wrap">
                 {{ m.content }}
               </div>
             </div>
@@ -224,7 +224,7 @@ async function downloadExport(msg: MiniMessage) {
             @keydown.enter.prevent="send" />
           <button type="submit" :disabled="loading || !input.trim()"
             class="p-2.5 rounded-xl flex-shrink-0 transition"
-            :class="!loading && input.trim() ? 'bg-gradient-to-r from-accent to-emerald-600 text-white shadow-lg shadow-accent/30' : 'bg-dark-700 text-slate-500'">
+            :class="!loading && input.trim() ? 'bg-gradient-to-r from-accent to-accent-light text-white shadow-lg shadow-accent/30' : 'bg-dark-700 text-slate-500'">
             <PaperAirplaneIcon class="w-4 h-4" />
           </button>
         </form>
@@ -233,7 +233,7 @@ async function downloadExport(msg: MiniMessage) {
 
     <!-- FAB -->
     <button @click="toggle"
-      class="w-14 h-14 rounded-full bg-gradient-to-br from-accent to-cyan-500 text-white shadow-xl shadow-accent/30 flex items-center justify-center hover:scale-105 active:scale-95 transition self-end">
+      class="w-14 h-14 rounded-full bg-gradient-to-br from-accent to-accent-light text-white shadow-xl shadow-accent/30 flex items-center justify-center hover:scale-105 active:scale-95 transition self-end">
       <XMarkIcon v-if="open" class="w-6 h-6" />
       <SparklesIcon v-else class="w-6 h-6" />
     </button>
@@ -243,11 +243,11 @@ async function downloadExport(msg: MiniMessage) {
 <style scoped>
 .prose-mini :deep(p) { margin: 0.2em 0; }
 .prose-mini :deep(ul), .prose-mini :deep(ol) { padding-left: 1.1em; margin: 0.3em 0; }
-.prose-mini :deep(strong) { color: #10b981; font-weight: 600; }
+.prose-mini :deep(strong) { color: var(--color-accent); font-weight: 600; }
 .prose-mini :deep(table) { width: 100%; border-collapse: collapse; margin: 0.4em 0; font-size: 0.8em; }
-.prose-mini :deep(th) { text-align: left; padding: 0.3em 0.4em; border-bottom: 1px solid #334155; color: #94a3b8; }
-.prose-mini :deep(td) { padding: 0.25em 0.4em; border-bottom: 1px solid #1e293b; }
-.prose-mini :deep(code) { background: rgba(0,0,0,0.3); padding: 0.1em 0.3em; border-radius: 4px; font-size: 0.85em; }
+.prose-mini :deep(th) { text-align: left; padding: 0.3em 0.4em; border-bottom: 1px solid rgba(120,130,150,0.3); color: var(--color-accent); }
+.prose-mini :deep(td) { padding: 0.25em 0.4em; border-bottom: 1px solid rgba(120,130,150,0.18); }
+.prose-mini :deep(code) { background: rgba(120,130,150,0.15); padding: 0.1em 0.3em; border-radius: 4px; font-size: 0.85em; }
 
 .mini-pop-enter-active, .mini-pop-leave-active { transition: opacity 0.18s ease, transform 0.18s ease; transform-origin: bottom right; }
 .mini-pop-enter-from, .mini-pop-leave-to { opacity: 0; transform: scale(0.9) translateY(10px); }

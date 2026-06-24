@@ -137,15 +137,15 @@ function fullAvatarUrl(path: string | null): string | undefined {
       </div>
       <p class="text-xs text-slate-500 mt-2">{{ t('profile_avatar_hint') }}</p>
 
-      <h1 class="text-2xl font-bold text-slate-100 mt-4">{{ t('profile_title') }}</h1>
+      <h1 class="font-display text-3xl font-semibold text-slate-100 mt-4 tracking-wide">{{ t('profile_title') }}</h1>
       <p class="text-slate-400 text-sm mt-1">{{ auth.user?.email }}</p>
       <span class="inline-block mt-2 px-3 py-0.5 rounded-full text-xs font-medium"
-        :class="auth.user?.role === 'admin' ? 'bg-indigo-500/20 text-indigo-300' : 'bg-emerald-500/20 text-emerald-300'">
+        :class="auth.user?.role === 'admin' ? 'bg-[#8a8fc4]/15 text-[#767bb5]' : 'bg-[#6f9e87]/15 text-[#5e8a74]'">
         {{ auth.user?.role }}
       </span>
     </div>
 
-    <div class="bg-dark-800 border border-dark-700 rounded-xl p-6 space-y-4 animate-fadeInUp">
+    <div class="bg-dark-800 border border-dark-700 rounded-2xl p-6 shadow-sm space-y-4 animate-fadeInUp">
       <!-- Saving overlay -->
       <div v-if="saving" class="flex flex-col items-center py-8 animate-fadeIn">
         <div class="w-12 h-12 border-4 border-accent/30 border-t-accent rounded-full animate-spin mb-4"></div>
@@ -168,7 +168,7 @@ function fullAvatarUrl(path: string | null): string | undefined {
         <div class="border-t border-dark-700 pt-4">
           <button @click="togglePassword" type="button"
             class="flex items-center gap-2 text-sm transition"
-            :class="showPasswordSection ? 'text-amber-400' : 'text-slate-400 hover:text-accent'">
+            :class="showPasswordSection ? 'text-[#b8862f]' : 'text-slate-400 hover:text-accent'">
             <KeyIcon class="w-4 h-4" />
             {{ showPasswordSection ? t('users_cancel_password') : t('users_change_password') }}
           </button>
@@ -192,7 +192,7 @@ function fullAvatarUrl(path: string | null): string | undefined {
         </div>
 
         <div v-if="saveResult" class="p-3 rounded-lg text-sm animate-fadeIn"
-          :class="saveResult === 'success' ? 'bg-emerald-900/30 border border-emerald-700 text-emerald-300' : 'bg-red-900/30 border border-red-700 text-red-300'">
+          :class="saveResult === 'success' ? 'bg-[#6f9e87]/15 border border-[#6f9e87]/40 text-[#5e8a74]' : 'bg-red-500/10 border border-red-400/40 text-red-500'">
           {{ saveMessage }}
         </div>
 

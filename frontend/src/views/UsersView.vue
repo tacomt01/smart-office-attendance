@@ -195,9 +195,9 @@ function inputClass(field: string) {
 </script>
 
 <template>
-  <div class="p-8 max-w-5xl mx-auto">
-    <div class="flex items-center justify-between mb-6">
-      <h1 class="text-2xl font-bold text-accent flex items-center gap-2">
+  <div class="p-4 md:p-8 max-w-5xl mx-auto">
+    <div class="flex items-center justify-between mb-7">
+      <h1 class="font-display text-3xl font-semibold tracking-wide text-accent flex items-center gap-2">
         <UsersIcon class="w-7 h-7" /> {{ t('users_title') }}
       </h1>
       <button @click="openAdd" class="flex items-center gap-2 px-4 py-2 bg-accent hover:bg-accent-light text-dark-900 font-semibold rounded-lg transition-all duration-300 hover:-translate-y-0.5">
@@ -206,7 +206,7 @@ function inputClass(field: string) {
     </div>
 
     <!-- Search Bar -->
-    <div class="bg-dark-800 border border-dark-700 rounded-xl p-4 mb-4 flex flex-col md:flex-row md:flex-wrap gap-3 md:items-end">
+    <div class="bg-dark-800 border border-dark-700 rounded-2xl p-5 shadow-sm mb-4 flex flex-col md:flex-row md:flex-wrap gap-3 md:items-end">
       <div class="w-full md:flex-1 md:min-w-[200px]">
         <label class="block text-xs text-slate-400 mb-1">{{ t('search') }}</label>
         <div class="relative">
@@ -227,7 +227,7 @@ function inputClass(field: string) {
     </div>
 
     <!-- Table -->
-    <div class="bg-dark-800 border border-dark-700 rounded-xl overflow-x-auto">
+    <div class="bg-dark-800 border border-dark-700 rounded-2xl overflow-x-auto shadow-sm">
       <table class="w-full text-sm">
         <thead>
           <tr class="border-b border-dark-700 text-slate-400">
@@ -250,7 +250,7 @@ function inputClass(field: string) {
             <td class="px-4 py-3 text-slate-100">{{ user.email }}</td>
             <td class="px-4 py-3 text-slate-300">{{ user.fullName || '-' }}</td>
             <td class="px-4 py-3">
-              <span :class="user.role === 'admin' ? 'bg-indigo-500/20 text-indigo-300' : 'bg-emerald-500/20 text-emerald-300'"
+              <span :class="user.role === 'admin' ? 'bg-[#8a8fc4]/15 text-[#767bb5]' : 'bg-[#6f9e87]/15 text-[#5e8a74]'"
                 class="px-2 py-0.5 rounded-full text-xs font-medium">{{ user.role }}</span>
             </td>
             <td class="hidden md:table-cell px-4 py-3 text-slate-400">{{ formatDate(user.createdAt) }}</td>
@@ -269,7 +269,7 @@ function inputClass(field: string) {
     <!-- Add/Edit Modal -->
     <div v-if="showModal" class="fixed inset-0 bg-black/60 z-50 flex items-center justify-center glass">
       <div class="bg-dark-800 border border-dark-700 rounded-2xl p-6 w-full max-w-md shadow-2xl max-h-[90vh] overflow-y-auto animate-scaleIn">
-        <h3 class="text-lg font-bold text-slate-100 mb-4">{{ editingUser ? t('users_edit_title') : t('users_add_title') }}</h3>
+        <h3 class="font-display text-xl font-semibold text-slate-100 mb-4 tracking-wide">{{ editingUser ? t('users_edit_title') : t('users_add_title') }}</h3>
 
         <!-- Loading state -->
         <div v-if="saving" class="flex flex-col items-center py-8">
@@ -279,13 +279,13 @@ function inputClass(field: string) {
 
         <!-- Result state (success or API error) -->
         <div v-else-if="saveResult" class="flex flex-col items-center py-8">
-          <div v-if="saveResult === 'success'" class="w-14 h-14 bg-emerald-500/20 rounded-full flex items-center justify-center mb-4 animate-bounceIn">
-            <svg class="w-8 h-8 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg>
+          <div v-if="saveResult === 'success'" class="w-14 h-14 bg-[#6f9e87]/20 rounded-full flex items-center justify-center mb-4 animate-bounceIn">
+            <svg class="w-8 h-8 text-[#5e8a74]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg>
           </div>
           <div v-else class="w-14 h-14 bg-red-500/20 rounded-full flex items-center justify-center mb-4 animate-bounceIn">
             <svg class="w-8 h-8 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
           </div>
-          <p :class="saveResult === 'success' ? 'text-emerald-400' : 'text-red-400'" class="text-lg font-semibold">{{ saveMessage }}</p>
+          <p :class="saveResult === 'success' ? 'text-[#5e8a74]' : 'text-red-400'" class="text-lg font-semibold">{{ saveMessage }}</p>
           <button v-if="saveResult === 'error'" @click="showModal = false" class="mt-4 px-4 py-2 bg-dark-700 hover:bg-dark-600 text-slate-300 rounded-lg text-sm transition">{{ t('close') }}</button>
         </div>
 
@@ -335,7 +335,7 @@ function inputClass(field: string) {
           <template v-if="editingUser">
             <div class="border-t border-dark-700 pt-3">
               <button @click="togglePassword" type="button" class="flex items-center gap-2 text-sm transition"
-                :class="showPasswordSection ? 'text-amber-400' : 'text-slate-400 hover:text-accent'">
+                :class="showPasswordSection ? 'text-[#b8862f]' : 'text-slate-400 hover:text-accent'">
                 <KeyIcon class="w-4 h-4" /> {{ showPasswordSection ? t('users_cancel_password') : t('users_change_password') }}
               </button>
               <div v-if="showPasswordSection" class="mt-3 space-y-3">
@@ -385,7 +385,7 @@ function inputClass(field: string) {
           </div>
         </template>
         <template v-else>
-          <h3 class="text-lg font-bold text-slate-100 mb-2">{{ t('users_delete_title') }}</h3>
+          <h3 class="font-display text-xl font-semibold text-slate-100 mb-2 tracking-wide">{{ t('users_delete_title') }}</h3>
           <p class="text-slate-400 text-sm mb-6">{{ t('users_delete_msg') }} <span class="text-slate-200">{{ deletingUser?.email }}</span> ?</p>
           <div class="flex gap-3 justify-end">
             <button @click="showDeleteModal = false" class="px-4 py-2 bg-dark-700 hover:bg-dark-600 text-slate-300 rounded-lg text-sm transition">{{ t('cancel') }}</button>

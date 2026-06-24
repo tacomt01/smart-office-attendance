@@ -81,7 +81,7 @@ function uploadMore() {
 
 <template>
   <div class="p-4 md:p-8 max-w-3xl mx-auto">
-    <h1 class="text-2xl font-bold text-accent mb-6">{{ t('upload_title') }}</h1>
+    <h1 class="font-display text-3xl font-semibold tracking-wide text-accent mb-7">{{ t('upload_title') }}</h1>
 
     <!-- Upload Modal Overlay -->
     <div v-if="showModal" class="fixed inset-0 bg-black/70 z-50 flex items-center justify-center glass">
@@ -91,17 +91,17 @@ function uploadMore() {
           <p class="text-slate-200 text-lg font-semibold">{{ t('upload_processing') }}</p>
           <p class="text-slate-400 text-sm mt-2">{{ t('upload_wait') }}</p>
           <div class="w-full h-1.5 bg-dark-700 rounded-full mt-4 overflow-hidden">
-            <div class="h-full bg-gradient-to-r from-accent via-cyan-400 to-accent rounded-full"
+            <div class="h-full bg-gradient-to-r from-accent via-accent-light to-accent rounded-full"
               style="width: 100%; animation: shimmer 1.5s ease-in-out infinite; background-size: 200% 100%;"></div>
           </div>
         </template>
         <template v-else-if="modalStatus === 'success'">
-          <div class="w-14 h-14 bg-emerald-500/20 rounded-full flex items-center justify-center mx-auto mb-4 animate-bounceIn">
-            <svg class="w-8 h-8 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <div class="w-14 h-14 bg-[#6f9e87]/20 rounded-full flex items-center justify-center mx-auto mb-4 animate-bounceIn">
+            <svg class="w-8 h-8 text-[#5e8a74]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
             </svg>
           </div>
-          <p class="text-emerald-400 text-lg font-semibold">{{ t('upload_success') }}</p>
+          <p class="text-[#5e8a74] text-lg font-semibold">{{ t('upload_success') }}</p>
         </template>
         <template v-else>
           <div class="w-14 h-14 bg-red-500/20 rounded-full flex items-center justify-center mx-auto mb-4 animate-bounceIn">
@@ -117,7 +117,7 @@ function uploadMore() {
     <div v-if="!result">
       <div
         class="border-2 border-dashed rounded-2xl p-8 md:p-16 text-center transition-all duration-300 cursor-pointer"
-        :class="isDragging ? 'border-accent bg-accent/10 scale-[1.02] shadow-[0_0_30px_rgba(16,185,129,0.2)]' : 'border-dark-600 hover:border-accent'"
+        :class="isDragging ? 'border-accent bg-accent/10 scale-[1.02] shadow-[0_0_30px_rgba(91,113,150,0.2)]' : 'border-dark-600 hover:border-accent'"
         @dragover.prevent="isDragging = true"
         @dragleave="isDragging = false"
         @drop.prevent="onDrop"
@@ -151,8 +151,8 @@ function uploadMore() {
       </div>
     </div>
 
-    <div v-if="result" class="mt-6 p-6 bg-dark-800 border border-dark-700 rounded-xl animate-fadeInUp card-hover">
-      <h2 class="text-lg font-semibold text-accent mb-4">{{ t('upload_result') }}</h2>
+    <div v-if="result" class="mt-6 p-6 bg-dark-800 border border-dark-700 rounded-2xl shadow-sm animate-fadeInUp card-hover">
+      <h2 class="font-display text-xl font-semibold text-accent mb-4 tracking-wide">{{ t('upload_result') }}</h2>
       <div class="grid grid-cols-2 gap-4 text-sm">
         <div class="bg-dark-900 rounded-lg p-3">
           <p class="text-slate-400">{{ t('upload_employees') }}</p>
@@ -168,7 +168,7 @@ function uploadMore() {
         </div>
         <div v-if="result.skipped > 0" class="bg-dark-900 rounded-lg p-3">
           <p class="text-slate-400">{{ t('upload_skipped') }}</p>
-          <p class="text-2xl font-bold text-amber-400">{{ result.skipped }}</p>
+          <p class="text-2xl font-bold text-[#b8862f]">{{ result.skipped }}</p>
         </div>
       </div>
       <button @click="uploadMore"
