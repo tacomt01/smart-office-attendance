@@ -15,6 +15,7 @@
 
 # Local-only Claude Code settings
 .claude/settings.local.json
+**/.claude/launch.json
 
 # Sample data with real employee names (do not publish)
 test_files/
