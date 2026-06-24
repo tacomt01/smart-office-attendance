@@ -6,6 +6,7 @@ import {
   MagnifyingGlassIcon, CameraIcon, UserCircleIcon,
 } from '@heroicons/vue/24/outline';
 import { useI18n } from '../i18n';
+import { validateAvatarFile, AVATAR_ACCEPT } from '../utils/avatar';
 
 const { t } = useI18n();
 
@@ -34,6 +35,7 @@ const modalAvatarUrl = ref<string | null>(null);
 const modalAvatarPreview = ref<string | null>(null);
 const pendingAvatarFile = ref<File | null>(null);
 const uploadingAvatar = ref(false);
+const avatarError = ref('');
 const formErrors = ref<Record<string, string>>({});
 
 const form = ref({ email: '', password: '', confirmPassword: '', fullName: '', role: 'employee' });
@@ -64,6 +66,7 @@ function openAdd() {
   modalAvatarPreview.value = null;
   pendingAvatarFile.value = null;
   saveResult.value = '';
+  avatarError.value = '';
   formErrors.value = {};
   showModal.value = true;
 }
@@ -74,6 +77,7 @@ function openEdit(user: UserItem) {
   showPasswordSection.value = false;
   modalAvatarUrl.value = user.avatar || null;
   saveResult.value = '';
+  avatarError.value = '';
   formErrors.value = {};
   showModal.value = true;
 }
@@ -87,8 +91,16 @@ function togglePassword() {
 }
 
 async function uploadAvatar(e: Event) {
-  const file = (e.target as HTMLInputElement).files?.[0];
+  const input = e.target as HTMLInputElement;
+  const file = input.files?.[0];
   if (!file) return;
+  avatarError.value = '';
+  const errKey = validateAvatarFile(file);
+  if (errKey) {
+    avatarError.value = t(errKey);
+    input.value = '';
+    return;
+  }
   if (editingUser.value) {
     uploadingAvatar.value = true;
     try {
@@ -97,7 +109,9 @@ async function uploadAvatar(e: Event) {
       const { data } = await api.post(`/users/${editingUser.value.id}/avatar`, fd);
       modalAvatarUrl.value = data.avatar;
       editingUser.value.avatar = data.avatar;
-    } catch {} finally { uploadingAvatar.value = false; }
+    } catch (err: any) {
+      avatarError.value = err.response?.data?.error || t('users_avatar_failed');
+    } finally { uploadingAvatar.value = false; }
   } else {
     pendingAvatarFile.value = file;
     if (modalAvatarPreview.value) URL.revokeObjectURL(modalAvatarPreview.value);
@@ -301,13 +315,14 @@ function inputClass(field: string) {
               </div>
               <label class="absolute inset-0 rounded-full bg-black/50 opacity-0 group-hover:opacity-100 flex items-center justify-center cursor-pointer transition">
                 <CameraIcon class="w-6 h-6 text-white" />
-                <input type="file" accept="image/*" class="hidden" @change="uploadAvatar" />
+                <input type="file" :accept="AVATAR_ACCEPT" class="hidden" @change="uploadAvatar" />
               </label>
               <div v-if="uploadingAvatar" class="absolute inset-0 rounded-full bg-black/60 flex items-center justify-center">
                 <div class="w-6 h-6 border-2 border-accent/30 border-t-accent rounded-full animate-spin"></div>
               </div>
             </div>
             <p class="text-xs text-slate-500 mt-1">{{ t('users_avatar_hint') }}</p>
+            <p v-if="avatarError" class="text-xs text-red-500 mt-1">{{ avatarError }}</p>
           </div>
 
           <!-- Email -->

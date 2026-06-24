@@ -109,7 +109,8 @@ export default {
   users_change_password: 'เปลี่ยนรหัสผ่าน',
   users_cancel_password: 'ยกเลิกเปลี่ยนรหัสผ่าน',
   users_no_data: 'ไม่พบข้อมูลผู้ใช้',
-  users_avatar_hint: 'คลิกเพื่อเลือกรูป',
+  users_avatar_hint: 'รองรับ JPG, PNG, GIF, WebP • สูงสุด 5 MB',
+  users_avatar_failed: 'อัปโหลดรูปไม่สำเร็จ',
   users_search: 'ค้นหาด้วยอีเมลหรือชื่อ-สกุล...',
   users_delete_title: 'ยืนยันการลบ',
   users_delete_msg: 'คุณต้องการลบผู้ใช้',
@@ -124,12 +125,14 @@ export default {
 
   // Profile
   profile_title: 'แก้ไขโปรไฟล์',
-  profile_avatar_hint: 'คลิกที่รูปเพื่อเปลี่ยน (สูงสุด 2 MB)',
+  profile_avatar_hint: 'รองรับ JPG, PNG, GIF, WebP • สูงสุด 5 MB',
   profile_current_password: 'รหัสผ่านปัจจุบัน',
   profile_new_password: 'รหัสผ่านใหม่',
   profile_confirm_password: 'ยืนยันรหัสผ่านใหม่',
   profile_save_success: 'บันทึกสำเร็จ',
   profile_avatar_success: 'อัปโหลดรูปโปรไฟล์สำเร็จ',
+  avatar_err_type: 'รองรับเฉพาะไฟล์ JPG, PNG, GIF หรือ WebP',
+  avatar_err_size: 'ไฟล์ต้องมีขนาดไม่เกิน 5 MB',
 
   // Data Management
   data_title: 'จัดการข้อมูล',
